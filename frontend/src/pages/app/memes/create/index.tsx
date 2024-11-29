@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Camera,
@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
+import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
+import { TrueApi } from "@truenetworkio/sdk";
+import { MemeTemplateSchema } from "../../../../../true-network/schema";
+import { useWalletStore } from "@/providers/walletStoreProvider";
 
 interface Position {
   x: number;
@@ -223,7 +227,7 @@ const generateMemeCanvas = async (
   return canvas.toDataURL("image/png");
 };
 
-const MemeCreator = () => {
+const MemeCreator: React.FC = () => {
   const [stage, setStage] = useState(1);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
@@ -231,7 +235,13 @@ const MemeCreator = () => {
   const [loadingMessage, setLoadingMessage] = useState("");
   const webcamRef = useRef<Webcam>(null);
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
+  const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  const { connectedWallet, connectedAccount, api, isWalletConnected } =
+    useWalletStore((state) => state);
+
+  console.log(isWalletConnected);
 
   const videoConstraints = {
     width: 1920,
@@ -242,7 +252,7 @@ const MemeCreator = () => {
 
   const webcamConfig = {
     audio: false,
-    screenshotFormat: 'image/png' as 'image/png' | 'image/webp' | 'image/jpeg',
+    screenshotFormat: "image/png" as "image/png" | "image/webp" | "image/jpeg",
     screenshotQuality: 1,
     forceScreenshotSourceSize: true,
   };
@@ -299,6 +309,30 @@ const MemeCreator = () => {
     }
   };
 
+  const generateTemplate = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Generating your meme...");
+
+    console.log(trueApi, connectedAccount);
+
+    if (!trueApi || !connectedAccount?.address) {
+      setIsLoading(false);
+      setLoadingMessage("");
+      return;
+    }
+
+    await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
+      cid: 32,
+      isTemplate: "F",
+      marketId: 22,
+      poolId: 20,
+    });
+
+    setStage(2);
+    setIsLoading(false);
+    setLoadingMessage("");
+  };
+
   const Stage1 = () => (
     <div className="flex flex-col items-center w-full">
       {!capturedImage ? (
@@ -339,7 +373,7 @@ const MemeCreator = () => {
               <span>Retake</span>
             </button>
             <button
-              onClick={() => setStage(2)}
+              onClick={generateTemplate}
               className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
                        transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
@@ -486,6 +520,16 @@ const MemeCreator = () => {
       </div>
     </div>
   );
+
+  useEffect(() => {
+    const setupapi = async () => {
+      const api = await getTrueNetworkInstance();
+
+      setTrueApi(api);
+    };
+
+    setupapi();
+  }, []);
 
   return (
     <Layout>

@@ -3,8 +3,8 @@ import { TrueApi, testnet } from '@truenetworkio/sdk'
 import { TrueConfig } from '@truenetworkio/sdk/dist/utils/cli-config'
 
 // If you are not in a NodeJS environment, please comment the code following code:
-import dotenv from 'dotenv'
-dotenv.config()
+// import dotenv from 'dotenv'
+// dotenv.config()
 
 export const getTrueNetworkInstance = async (): Promise<TrueApi> => {
   const trueApi = await TrueApi.create(config.account.secret)
@@ -18,7 +18,7 @@ export const config: TrueConfig = {
   network: testnet,
   account: {
     address: 'j95hjBHU1d27463JEWZdi2kjcJDFH2WZdjXePe6CNtpHkw9',
-    secret: process.env.TRUE_NETWORK_SECRET_KEY ?? ''
+    secret: process.env.NEXT_PUBLIC_TRUE_NETWORK_SECRET_KEY ?? ''
   },
   issuer: {
     name: 'meme.true',

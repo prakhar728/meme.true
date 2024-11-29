@@ -5,11 +5,10 @@ const MemeView = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
-  // Sample meme data
   const memes = [
-    { id: 1, imageUrl: "/images/sample-meme-1.png", title: "Meme 1" },
-    { id: 2, imageUrl: "/images/sample-meme-1.png", title: "Meme 2" },
-    { id: 3, imageUrl: "/images/sample-meme-1.png", title: "Meme 3" }
+    { id: 1, imageUrl: "/images/sample-meme-1.jpg", title: "Meme 1" },
+    { id: 2, imageUrl: "/images/feature.png", title: "Meme 2" },
+    { id: 3, imageUrl: "/images/image.png", title: "Meme 3" }
   ];
 
   const handleDragEnd = (event: any, info: PanInfo) => {
