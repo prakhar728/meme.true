@@ -173,7 +173,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 rounded-lg text-lg font-medium transition-colors flex items-center mx-auto"
-              onClick={() => router.push('/app/memes/create')}
+              onClick={() => router.push('/app/memes')}
             >
               Explore Platform
               <ChevronRight className="ml-2 w-5 h-5" />

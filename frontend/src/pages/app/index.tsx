@@ -45,13 +45,24 @@ export default function Home() {
   async function signTransaction() {
     try {
       if (api && connectedAccount?.address && connectedWallet?.signer) {
-        const signer = connectedWallet.signer;
+        const signer = connectedWallet.signer as any;
 
         await api.tx.system
           .remark("Hello World")
-          .signAndSend(connectedAccount.address, { signer }, () => {
-            // do something with result
-          });
+          .signAndSend(
+            connectedAccount.address,
+            { signer },
+            ({ status, events }) => {
+              // do something with result
+              events.forEach(({ event: { data, method, section } }) => {
+                console.log(`\t' ${section}.${method}:: ${data}`);
+              });
+              console.log(
+                "Transaction successful",
+                status.asFinalized.toString()
+              );
+            }
+          );
       }
     } catch (err) {
       alert("Error signing transaction");

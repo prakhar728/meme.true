@@ -13,6 +13,7 @@
     "@polkadot-onboard/injected-wallets": "^1.1.0",
     "@polkadot-onboard/react": "^1.1.0",
     "@polkadot-onboard/wallet-connect": "^1.1.0",
+    "@polkadot/util-crypto": "^13.2.3",
     "@tsparticles/engine": "^3.7.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.7.1",
