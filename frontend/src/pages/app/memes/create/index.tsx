@@ -10,6 +10,7 @@ import {
   Minus,
 } from "lucide-react";
 import Webcam from "react-webcam";
+import Layout from "@/components/Layout";
 
 interface Position {
   x: number;
@@ -177,6 +178,51 @@ const DraggableText = ({
   );
 };
 
+const generateMemeCanvas = async (
+  imageUrl: string,
+  textBoxes: TextBox[],
+  width: number,
+  height: number
+): Promise<string> => {
+  // Create canvas
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas context not supported");
+
+  // Set canvas size
+  canvas.width = width;
+  canvas.height = height;
+
+  // Load and draw image
+  const image = new Image();
+  image.crossOrigin = "anonymous";
+
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = reject;
+    image.src = imageUrl;
+  });
+
+  ctx.drawImage(image, 0, 0, width, height);
+
+  // Draw text boxes
+  textBoxes.forEach((box) => {
+    ctx.font = `${box.fontSize}px Arial`;
+    ctx.fillStyle = box.color;
+    ctx.textBaseline = "top";
+
+    // Add text shadow
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 2;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    ctx.fillText(box.text, box.position.x, box.position.y);
+  });
+
+  return canvas.toDataURL("image/png");
+};
+
 const MemeCreator = () => {
   const [stage, setStage] = useState(1);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -184,6 +230,8 @@ const MemeCreator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const webcamRef = useRef<Webcam>(null);
+  const [finalMeme, setFinalMeme] = useState<string | null>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const videoConstraints = {
     width: 1920,
@@ -194,7 +242,7 @@ const MemeCreator = () => {
 
   const webcamConfig = {
     audio: false,
-    screenshotFormat: "image/png",
+    screenshotFormat: 'image/png' as 'image/png' | 'image/webp' | 'image/jpeg',
     screenshotQuality: 1,
     forceScreenshotSourceSize: true,
   };
@@ -225,18 +273,30 @@ const MemeCreator = () => {
   };
 
   const generateMeme = async () => {
+    if (!imageContainerRef.current || !capturedImage) return;
+
     setIsLoading(true);
     setLoadingMessage("Generating your meme...");
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const container = imageContainerRef.current;
+      const { width, height } = container.getBoundingClientRect();
 
-    console.log("Generated Meme:", {
-      baseImage: capturedImage,
-      textOverlays: textBoxes,
-    });
+      const memeDataUrl = await generateMemeCanvas(
+        capturedImage,
+        textBoxes,
+        width,
+        height
+      );
 
-    setIsLoading(false);
-    setLoadingMessage("");
+      setFinalMeme(memeDataUrl);
+      setStage(3);
+    } catch (error) {
+      console.error("Error generating meme:", error);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
+    }
   };
 
   const Stage1 = () => (
@@ -297,6 +357,7 @@ const MemeCreator = () => {
       <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
         {capturedImage && (
           <div
+            ref={imageContainerRef}
             className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4 image-container"
             onTouchMove={(e) => e.preventDefault()} // Prevent pull-to-refresh
           >
@@ -382,6 +443,41 @@ const MemeCreator = () => {
     </div>
   );
 
+  const Stage3 = () => (
+    <div className="flex flex-col items-center w-full">
+      <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
+        {finalMeme && (
+          <img
+            src={finalMeme}
+            alt="Generated Meme"
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
+      <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
+        <button
+          onClick={() => {
+            setStage(2);
+            setFinalMeme(null);
+          }}
+          className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+                   transition-colors flex items-center justify-center gap-2 shadow-lg"
+        >
+          <RefreshCcw className="w-5 h-5" />
+          <span>Edit Again</span>
+        </button>
+        <a
+          href={finalMeme || "#"}
+          download="meme.png"
+          className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+                   transition-colors flex items-center justify-center gap-2 shadow-lg"
+        >
+          Download Meme
+        </a>
+      </div>
+    </div>
+  );
+
   const LoadingOverlay = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-4 w-full max-w-sm">
@@ -392,20 +488,22 @@ const MemeCreator = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
-      <AnimatePresence>{isLoading && <LoadingOverlay />}</AnimatePresence>
+    <Layout>
+      <div className="min-h-screen bg-gray-900 text-white p-4">
+        <AnimatePresence>{isLoading && <LoadingOverlay />}</AnimatePresence>
 
-      <div className="w-full max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full"
-        >
-          {stage === 1 ? <Stage1 /> : <Stage2 />}
-        </motion.div>
+        <div className="w-full max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full"
+          >
+            {stage === 1 ? <Stage1 /> : stage === 2 ? <Stage2 /> : <Stage3 />}
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
