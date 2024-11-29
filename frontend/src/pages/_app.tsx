@@ -18,7 +18,6 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <PolkadotWalletsContextProvider walletAggregator={walletAggregator}>
       <WalletStoreProvider>
-       <LandingHeader />
         <Component {...pageProps} />
       </WalletStoreProvider>
     </PolkadotWalletsContextProvider>

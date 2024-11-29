@@ -6,6 +6,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 import { TracingBeam } from "@/components/ui/tracing-beam";
 import { useRouter } from "next/router";
+import LandingHeader from "@/components/LandingHeader";
 
 const features = [
   {
@@ -130,6 +131,8 @@ export default function Home() {
 
   return (
     <div className="bg-gray-900 min-h-screen">
+       <LandingHeader />
+
       <AnimatePresence>
         {loading && <InitialLoader onComplete={() => setLoading(false)} />}
       </AnimatePresence>
