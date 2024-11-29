@@ -5,6 +5,7 @@ import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 import { TracingBeam } from "@/components/ui/tracing-beam";
+import { useRouter } from "next/router";
 
 const features = [
   {
@@ -34,7 +35,7 @@ const features = [
 ];
 
 // Update the InitialLoader component
-const InitialLoader = ({ onComplete } : { onComplete: () => void }) => {
+const InitialLoader = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2000);
     return () => clearTimeout(timer);
@@ -68,7 +69,15 @@ const InitialLoader = ({ onComplete } : { onComplete: () => void }) => {
 };
 
 // Feature Card Component
-const FeatureCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: any }) => (
+const FeatureCard = ({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: any;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -83,7 +92,17 @@ const FeatureCard = ({ title, description, icon: Icon }: { title: string, descri
 );
 
 // Timeline Item Component
-const TimelineItem = ({ date, title, description, align }: { date: string, title: string, description: string, align: string }) => (
+const TimelineItem = ({
+  date,
+  title,
+  description,
+  align,
+}: {
+  date: string;
+  title: string;
+  description: string;
+  align: string;
+}) => (
   <motion.div
     initial={{ opacity: 0, x: align === "left" ? -50 : 50 }}
     whileInView={{ opacity: 1, x: 0 }}
@@ -107,6 +126,7 @@ const TimelineItem = ({ date, title, description, align }: { date: string, title
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   return (
     <div className="bg-gray-900 min-h-screen">
@@ -150,6 +170,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 rounded-lg text-lg font-medium transition-colors flex items-center mx-auto"
+              onClick={() => router.push('/app')}
             >
               Explore Platform
               <ChevronRight className="ml-2 w-5 h-5" />
