@@ -34,7 +34,7 @@ const features = [
 ];
 
 // Update the InitialLoader component
-const InitialLoader = ({ onComplete }) => {
+const InitialLoader = ({ onComplete } : { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2000);
     return () => clearTimeout(timer);
@@ -68,7 +68,7 @@ const InitialLoader = ({ onComplete }) => {
 };
 
 // Feature Card Component
-const FeatureCard = ({ title, description, icon: Icon }) => (
+const FeatureCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: any }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -83,7 +83,7 @@ const FeatureCard = ({ title, description, icon: Icon }) => (
 );
 
 // Timeline Item Component
-const TimelineItem = ({ date, title, description, align }) => (
+const TimelineItem = ({ date, title, description, align }: { date: string, title: string, description: string, align: string }) => (
   <motion.div
     initial={{ opacity: 0, x: align === "left" ? -50 : 50 }}
     whileInView={{ opacity: 1, x: 0 }}
