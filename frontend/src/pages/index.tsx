@@ -1,33 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
-import { TypewriterEffect } from '@/components/ui/typewriter-effect';
-import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
-import { BackgroundGradient } from '@/components/ui/background-gradient';
-import { StickyScroll } from '@/components/ui/sticky-scroll-reveal';
-import { TracingBeam } from '@/components/ui/tracing-beam';
-
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight } from "lucide-react";
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
+import { TracingBeam } from "@/components/ui/tracing-beam";
 
 const features = [
   {
     title: "Create & Earn",
-    description: "Design meme templates and earn royalties every time someone uses them. Our platform ensures creators are fairly compensated for their work.",
+    description:
+      "Design meme templates and earn royalties every time someone uses them. Our platform ensures creators are fairly compensated for their work.",
   },
   {
     title: "Predict & Win",
-    description: "Use your meme-sensing abilities to predict which content will go viral. Stake tokens on your predictions and earn rewards when you're right.",
+    description:
+      "Use your meme-sensing abilities to predict which content will go viral. Stake tokens on your predictions and earn rewards when you're right.",
   },
   {
     title: "Community First",
-    description: "Join a vibrant community of creators, predictors, and meme enthusiasts. Share ideas, collaborate on templates, and grow together.",
+    description:
+      "Join a vibrant community of creators, predictors, and meme enthusiasts. Share ideas, collaborate on templates, and grow together.",
   },
   {
     title: "Transparent Rewards",
-    description: "All transactions and rewards are handled on-chain, ensuring complete transparency and fair distribution of earnings.",
+    description:
+      "All transactions and rewards are handled on-chain, ensuring complete transparency and fair distribution of earnings.",
   },
 ];
 
-
+// Update the InitialLoader component
 const InitialLoader = ({ onComplete }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2000);
@@ -39,16 +41,28 @@ const InitialLoader = ({ onComplete }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black flex items-center justify-center"
+      className="fixed inset-0 bg-background flex items-center justify-center"
     >
-      <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-        <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
-          Meme.True
+      <div className="h-[40rem] w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center relative z-20 flex items-center">
+          <span
+            className="text-foreground mr-2"
+            style={{ WebkitTextStroke: "1px rgb(var(--muted-foreground))" }}
+          >
+            Meme
+          </span>
+          <span
+            className="text-muted-foreground"
+            style={{ WebkitTextStroke: "1px rgb(var(--accent-foreground))" }}
+          >
+            .True
+          </span>
         </h1>
       </div>
     </motion.div>
   );
 };
+
 // Feature Card Component
 const FeatureCard = ({ title, description, icon: Icon }) => (
   <motion.div
@@ -67,13 +81,19 @@ const FeatureCard = ({ title, description, icon: Icon }) => (
 // Timeline Item Component
 const TimelineItem = ({ date, title, description, align }) => (
   <motion.div
-    initial={{ opacity: 0, x: align === 'left' ? -50 : 50 }}
+    initial={{ opacity: 0, x: align === "left" ? -50 : 50 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5 }}
-    className={`flex w-full ${align === 'left' ? 'justify-end pr-8' : 'justify-start pl-8'} relative`}
+    className={`flex w-full ${
+      align === "left" ? "justify-end pr-8" : "justify-start pl-8"
+    } relative`}
   >
-    <div className={`w-1/2 p-6 bg-gray-800/50 rounded-xl backdrop-blur-sm ${align === 'left' ? 'text-right' : 'text-left'}`}>
+    <div
+      className={`w-1/2 p-6 bg-gray-800/50 rounded-xl backdrop-blur-sm ${
+        align === "left" ? "text-right" : "text-left"
+      }`}
+    >
       <span className="text-purple-400 text-sm">{date}</span>
       <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
       <p className="text-gray-300">{description}</p>
@@ -98,7 +118,7 @@ export default function Home() {
       >
         {/* Hero Section */}
         <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background" />
           <motion.div
             initial={{ y: 20 }}
             animate={{ y: 0 }}
@@ -108,11 +128,11 @@ export default function Home() {
               words={[
                 {
                   text: "Meme.",
-                  className: "text-purple-500",
+                  className: "text-foreground",
                 },
                 {
                   text: "True",
-                  className: "text-pink-500",
+                  className: "text-muted-foreground",
                 },
               ]}
               className="text-6xl md:text-7xl font-bold mb-6"
@@ -120,17 +140,18 @@ export default function Home() {
             />
             <TextGenerateEffect
               words="Where Memes Meet Markets. Create, Predict, Earn."
-              className="text-xl md:text-2xl text-gray-300 mb-8"
+              className="text-2xl md:text-3xl text-primary font-medium mb-8"
             />
-            <BackgroundGradient className="rounded-[22px] p-1 bg-white dark:bg-zinc-900">
-              <button className="bg-black dark:bg-zinc-900 text-white rounded-[20px] px-8 py-3 text-lg font-medium">
-                Explore Platform
-                <ChevronRight className="inline ml-2" />
-              </button>
-            </BackgroundGradient>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 rounded-lg text-lg font-medium transition-colors flex items-center mx-auto"
+            >
+              Explore Platform
+              <ChevronRight className="ml-2 w-5 h-5" />
+            </motion.button>
           </motion.div>
         </section>
-
         {/* Features Section */}
         <StickyScroll content={features} />
 
@@ -141,43 +162,68 @@ export default function Home() {
               {
                 date: "Q1 2024",
                 title: "Platform Launch",
-                description: "Initial release with core features and wallet integration"
+                description:
+                  "Initial release with core features and wallet integration",
               },
               {
                 date: "Q2 2024",
                 title: "Community Features",
-                description: "Introduction of social features and creator tools"
+                description:
+                  "Introduction of social features and creator tools",
               },
               {
                 date: "Q3 2024",
                 title: "Enhanced Predictions",
-                description: "Advanced prediction markets and analytics"
+                description: "Advanced prediction markets and analytics",
               },
               {
                 date: "Q4 2024",
                 title: "Mobile App",
-                description: "Launch of native mobile applications"
-              }
+                description: "Launch of native mobile applications",
+              },
             ].map((item, index) => (
-              <div key={index} className="mb-32">
-                <h3 className="text-sm text-purple-400 mb-2">{item.date}</h3>
-                <h2 className="text-2xl font-bold text-white mb-4">{item.title}</h2>
-                <p className="text-gray-300">{item.description}</p>
-              </div>
+              <motion.div
+                key={index}
+                className="mb-32"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.div
+                  className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:bg-gray-800/60 transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-400 mr-2" />
+                    <h3 className="text-sm text-purple-400">{item.date}</h3>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-4">
+                    {item.title}
+                  </h2>
+                  <p className="text-gray-300">{item.description}</p>
+                </motion.div>
+              </motion.div>
             ))}
           </div>
         </TracingBeam>
-
         {/* Footer */}
         <footer className="bg-gray-800/50 backdrop-blur-sm py-12">
           <div className="max-w-6xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-4">Meme.True</h3>
-                <p className="text-gray-300">The future of meme creation and prediction markets.</p>
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Meme.True
+                </h3>
+                <p className="text-gray-300">
+                  The future of meme creation and prediction markets.
+                </p>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Platform</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">
+                  Platform
+                </h4>
                 <ul className="space-y-2 text-gray-300">
                   <li>Features</li>
                   <li>Roadmap</li>
@@ -185,7 +231,9 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Resources</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">
+                  Resources
+                </h4>
                 <ul className="space-y-2 text-gray-300">
                   <li>Help Center</li>
                   <li>Blog</li>
@@ -193,7 +241,9 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Connect</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">
+                  Connect
+                </h4>
                 <div className="flex space-x-4">
                   <ChevronRight className="w-6 h-6 text-gray-300 hover:text-white cursor-pointer" />
                   <ChevronRight className="w-6 h-6 text-gray-300 hover:text-white cursor-pointer" />
