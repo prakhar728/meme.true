@@ -1,24 +1,114 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, RefreshCcw, Type, Plus, Trash2, Loader } from 'lucide-react';
-import Webcam from 'react-webcam';
+import React, { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Camera,
+  RefreshCcw,
+  Type,
+  Plus,
+  Trash2,
+  Loader,
+  Minus,
+} from "lucide-react";
+import Webcam from "react-webcam";
 
-interface TextBox {
-  id: number;
-  text: string;
-  position: {
-    x: number;
-    y: number;
-  };
+interface Position {
+  x: number;
+  y: number;
 }
 
-const TextBoxComponent = ({ box, onTextChange, onRemove }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [text, setText] = useState(box.text);
+interface TextBox {
+  id: string;
+  text: string;
+  position: Position;
+  fontSize: number;
+  color: string;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-    onTextChange(box.id, e.target.value);
+const TextControl = ({
+  box,
+  onTextChange,
+  onRemove,
+  onFontSizeChange,
+  onColorChange,
+}: {
+  box: TextBox;
+  onTextChange: (id: string, text: string) => void;
+  onRemove: (id: string) => void;
+  onFontSizeChange: (id: string, increase: boolean) => void;
+  onColorChange: (id: string, color: string) => void;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="flex flex-col gap-2 w-full bg-gray-800 p-3 rounded-lg">
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          defaultValue={box.text} // Use defaultValue instead of value
+          onBlur={(e) => onTextChange(box.id, e.target.value)} // Update state only on blur
+          className="flex-1 bg-transparent border-none outline-none text-white text-lg"
+          placeholder="Enter text"
+        />
+        <button
+          onClick={() => onRemove(box.id)}
+          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors"
+        >
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </button>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onFontSizeChange(box.id, false)}
+          className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+        <span className="text-sm text-gray-300">
+          Font Size: {box.fontSize}px
+        </span>
+        <button
+          onClick={() => onFontSizeChange(box.id, true)}
+          className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <input
+          type="color"
+          value={box.color}
+          onChange={(e) => onColorChange(box.id, e.target.value)}
+          className="ml-auto w-8 h-8 rounded cursor-pointer"
+        />
+      </div>
+    </div>
+  );
+};
+
+const DraggableText = ({
+  box,
+  onMove,
+}: {
+  box: TextBox;
+  onMove: (id: string, position: Position) => void;
+}) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const offsetX = e.clientX - box.position.x;
+    const offsetY = e.clientY - box.position.y;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      onMove(box.id, {
+        x: e.clientX - offsetX,
+        y: e.clientY - offsetY,
+      });
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
   };
 
   return (
@@ -27,22 +117,13 @@ const TextBoxComponent = ({ box, onTextChange, onRemove }) => {
       style={{
         left: `${box.position.x}px`,
         top: `${box.position.y}px`,
+        fontSize: `${box.fontSize}px`,
+        color: box.color,
+        textShadow: "2px 2px 2px rgba(0,0,0,0.8)",
       }}
+      onMouseDown={handleMouseDown}
     >
-      <input
-        ref={inputRef}
-        type="text"
-        value={text}
-        onChange={handleChange}
-        className="bg-transparent border-none outline-none text-white text-lg w-full"
-        placeholder="Enter text"
-      />
-      <button
-        onClick={() => onRemove(box.id)}
-        className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
-      >
-        <Trash2 className="w-3 h-3" />
-      </button>
+      <div className="text-white">{box.text}</div>
     </div>
   );
 };
@@ -52,10 +133,9 @@ const MemeCreator = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState("");
   const webcamRef = useRef<Webcam>(null);
 
-  // Improved video constraints for higher quality
   const videoConstraints = {
     width: 1920,
     height: 1920,
@@ -63,19 +143,18 @@ const MemeCreator = () => {
     aspectRatio: 1,
   };
 
-  // Configure webcam settings for higher quality
   const webcamConfig = {
     audio: false,
     screenshotFormat: "image/png",
     screenshotQuality: 1,
-    forceScreenshotSourceSize: true
+    forceScreenshotSourceSize: true,
   };
 
   const capturePhoto = useCallback(() => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot({
         width: 1920,
-        height: 1920
+        height: 1920,
       });
       setCapturedImage(imageSrc);
     }
@@ -86,26 +165,29 @@ const MemeCreator = () => {
   };
 
   const addTextBox = () => {
-    setTextBoxes([...textBoxes, {
-      id: Date.now(),
-      text: 'Add text here',
-      position: { x: 50, y: 50 }
-    }]);
+    const newBox: TextBox = {
+      id: `text-${Date.now()}`,
+      text: "Add text here",
+      position: { x: 50, y: 50 },
+      fontSize: 24,
+      color: "#FFFFFF",
+    };
+    setTextBoxes([...textBoxes, newBox]);
   };
 
   const generateMeme = async () => {
     setIsLoading(true);
-    setLoadingMessage('Generating your meme...');
-    
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Generated Meme:', {
+    setLoadingMessage("Generating your meme...");
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    console.log("Generated Meme:", {
       baseImage: capturedImage,
-      textOverlays: textBoxes
+      textOverlays: textBoxes,
     });
-    
+
     setIsLoading(false);
-    setLoadingMessage('');
+    setLoadingMessage("");
   };
 
   const Stage1 = () => (
@@ -118,7 +200,7 @@ const MemeCreator = () => {
               {...webcamConfig}
               videoConstraints={videoConstraints}
               className="w-full h-full object-cover"
-              mirrored={true}
+              mirrored={false}
             />
           </div>
           <button
@@ -172,36 +254,76 @@ const MemeCreator = () => {
           />
         )}
         {textBoxes.map((box) => (
-          <TextBoxComponent
+          <DraggableText
             key={box.id}
             box={box}
-            onTextChange={(id, newText) => {
-              setTextBoxes(prev =>
-                prev.map(b => b.id === id ? { ...b, text: newText } : b)
+            onMove={(id, newPosition) => {
+              setTextBoxes((prev) =>
+                prev.map((b) =>
+                  b.id === id ? { ...b, position: newPosition } : b
+                )
               );
-            }}
-            onRemove={(id) => {
-              setTextBoxes(prev => prev.filter(b => b.id !== id));
             }}
           />
         ))}
       </div>
-      <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
-        <button
-          onClick={addTextBox}
-          className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
-                   transition-colors flex items-center justify-center gap-2 shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add Text</span>
-        </button>
-        <button
-          onClick={generateMeme}
-          className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
-                   transition-colors flex items-center justify-center gap-2 shadow-lg"
-        >
-          Generate Meme
-        </button>
+      <div className="w-full space-y-4">
+        <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
+          <button
+            onClick={addTextBox}
+            className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+                     transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add Text</span>
+          </button>
+          <button
+            onClick={generateMeme}
+            className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+                     transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            Generate Meme
+          </button>
+        </div>
+
+        {textBoxes.length > 0 && (
+          <div className="px-4 space-y-3">
+            {textBoxes.map((box) => (
+              <TextControl
+                key={box.id}
+                box={box}
+                onTextChange={(id, newText) => {
+                  setTextBoxes((prev) =>
+                    prev.map((b) => (b.id === id ? { ...b, text: newText } : b))
+                  );
+                }}
+                onRemove={(id) => {
+                  setTextBoxes((prev) => prev.filter((b) => b.id !== id));
+                }}
+                onFontSizeChange={(id, increase) => {
+                  setTextBoxes((prev) =>
+                    prev.map((b) =>
+                      b.id === id
+                        ? {
+                            ...b,
+                            fontSize: Math.max(
+                              12,
+                              b.fontSize + (increase ? 2 : -2)
+                            ),
+                          }
+                        : b
+                    )
+                  );
+                }}
+                onColorChange={(id, color) => {
+                  setTextBoxes((prev) =>
+                    prev.map((b) => (b.id === id ? { ...b, color } : b))
+                  );
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -217,10 +339,8 @@ const MemeCreator = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
-      <AnimatePresence>
-        {isLoading && <LoadingOverlay />}
-      </AnimatePresence>
-      
+      <AnimatePresence>{isLoading && <LoadingOverlay />}</AnimatePresence>
+
       <div className="w-full max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
