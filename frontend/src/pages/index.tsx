@@ -1,8 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import { TypewriterEffect } from '@/components/ui/typewriter-effect';
+import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
+import { BackgroundGradient } from '@/components/ui/background-gradient';
+import { StickyScroll } from '@/components/ui/sticky-scroll-reveal';
+import { TracingBeam } from '@/components/ui/tracing-beam';
 
-// Initial Loader Component
+
+const features = [
+  {
+    title: "Create & Earn",
+    description: "Design meme templates and earn royalties every time someone uses them. Our platform ensures creators are fairly compensated for their work.",
+  },
+  {
+    title: "Predict & Win",
+    description: "Use your meme-sensing abilities to predict which content will go viral. Stake tokens on your predictions and earn rewards when you're right.",
+  },
+  {
+    title: "Community First",
+    description: "Join a vibrant community of creators, predictors, and meme enthusiasts. Share ideas, collaborate on templates, and grow together.",
+  },
+  {
+    title: "Transparent Rewards",
+    description: "All transactions and rewards are handled on-chain, ensuring complete transparency and fair distribution of earnings.",
+  },
+];
+
+
 const InitialLoader = ({ onComplete }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2000);
@@ -16,17 +41,14 @@ const InitialLoader = ({ onComplete }) => {
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black flex items-center justify-center"
     >
-      <motion.h1
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        className="text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent"
-      >
-        Meme.True
-      </motion.h1>
+      <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
+          Meme.True
+        </h1>
+      </div>
     </motion.div>
   );
 };
-
 // Feature Card Component
 const FeatureCard = ({ title, description, icon: Icon }) => (
   <motion.div
@@ -82,85 +104,69 @@ export default function Home() {
             animate={{ y: 0 }}
             className="text-center z-10 max-w-4xl mx-auto px-4"
           >
-            <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-              Meme.True
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8">
-              Where Memes Meet Markets. Create, Predict, Earn.
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-purple-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-purple-700 transition-colors"
-            >
-              Explore Platform
-              <ChevronRight className="inline ml-2" />
-            </motion.button>
+            <TypewriterEffect
+              words={[
+                {
+                  text: "Meme.",
+                  className: "text-purple-500",
+                },
+                {
+                  text: "True",
+                  className: "text-pink-500",
+                },
+              ]}
+              className="text-6xl md:text-7xl font-bold mb-6"
+              cursorClassName="hidden"
+            />
+            <TextGenerateEffect
+              words="Where Memes Meet Markets. Create, Predict, Earn."
+              className="text-xl md:text-2xl text-gray-300 mb-8"
+            />
+            <BackgroundGradient className="rounded-[22px] p-1 bg-white dark:bg-zinc-900">
+              <button className="bg-black dark:bg-zinc-900 text-white rounded-[20px] px-8 py-3 text-lg font-medium">
+                Explore Platform
+                <ChevronRight className="inline ml-2" />
+              </button>
+            </BackgroundGradient>
           </motion.div>
         </section>
 
         {/* Features Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-4xl font-bold text-center text-white mb-12">Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FeatureCard
-                title="Create & Earn"
-                description="Design meme templates and earn royalties when others use them"
-                icon={() => <motion.div className="text-purple-400">🎨</motion.div>}
-              />
-              <FeatureCard
-                title="Predict & Win"
-                description="Bet on which memes will go viral using prediction markets"
-                icon={() => <motion.div className="text-purple-400">📈</motion.div>}
-              />
-              <FeatureCard
-                title="Community Driven"
-                description="Join a vibrant community of creators and predictors"
-                icon={() => <motion.div className="text-purple-400">👥</motion.div>}
-              />
-            </div>
-          </div>
-        </section>
+        <StickyScroll content={features} />
 
         {/* Roadmap Section */}
-        <section className="py-20 relative">
-          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-4xl font-bold text-center text-white mb-12">Roadmap</h2>
-            <div className="relative">
-              {/* Center Line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-purple-600/30" />
-              
-              {/* Timeline Items */}
-              <div className="space-y-12">
-                <TimelineItem
-                  date="Q1 2024"
-                  title="Platform Launch"
-                  description="Initial release with core features and wallet integration"
-                  align="left"
-                />
-                <TimelineItem
-                  date="Q2 2024"
-                  title="Community Features"
-                  description="Introduction of social features and creator tools"
-                  align="right"
-                />
-                <TimelineItem
-                  date="Q3 2024"
-                  title="Enhanced Predictions"
-                  description="Advanced prediction markets and analytics"
-                  align="left"
-                />
-                <TimelineItem
-                  date="Q4 2024"
-                  title="Mobile App"
-                  description="Launch of native mobile applications"
-                  align="right"
-                />
+        <TracingBeam className="px-4">
+          <div className="max-w-2xl mx-auto antialiased pt-4 relative">
+            {[
+              {
+                date: "Q1 2024",
+                title: "Platform Launch",
+                description: "Initial release with core features and wallet integration"
+              },
+              {
+                date: "Q2 2024",
+                title: "Community Features",
+                description: "Introduction of social features and creator tools"
+              },
+              {
+                date: "Q3 2024",
+                title: "Enhanced Predictions",
+                description: "Advanced prediction markets and analytics"
+              },
+              {
+                date: "Q4 2024",
+                title: "Mobile App",
+                description: "Launch of native mobile applications"
+              }
+            ].map((item, index) => (
+              <div key={index} className="mb-32">
+                <h3 className="text-sm text-purple-400 mb-2">{item.date}</h3>
+                <h2 className="text-2xl font-bold text-white mb-4">{item.title}</h2>
+                <p className="text-gray-300">{item.description}</p>
               </div>
-            </div>
+            ))}
           </div>
-        </section>
+        </TracingBeam>
 
         {/* Footer */}
         <footer className="bg-gray-800/50 backdrop-blur-sm py-12">
