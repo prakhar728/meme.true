@@ -90,7 +90,7 @@ const WalletModal: React.FC<{
                 )}
                 {isConnecting && connectingWallet === wallet.title && (
                   <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
                   </div>
                 )}
               </div>
@@ -206,7 +206,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-purple-900 text-white p-4 flex justify-between items-center">
+    <header className="bg-background text-foreground p-4 flex justify-between items-center">
       <h1 className="text-2xl font-bold">create-polka-dapp</h1>
       <div className="flex items-center space-x-4">
         {connectedWallet?.isConnected && connectedAccount ? (
@@ -215,7 +215,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowChains(!showChains)}
-                className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+                className="bg-card hover:bg-card/80 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
                 disabled={isChangingChain}
               >
                 <img
@@ -260,7 +260,7 @@ const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={toggleAccounts}
-                className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+                className="bg-card hover:bg-card/80 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
               >
                 {connectedWallet?.metadata?.iconUrl && (
                   <img
@@ -314,7 +314,7 @@ const Header: React.FC = () => {
           <button
             type="button"
             onClick={toggleWalletModal}
-            className="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
+            className="bg-card hover:bg-card/80 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-200"
           >
             <Wallet size={16} />
             <span>Connect Wallet</span>
