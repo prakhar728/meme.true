@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import type { AppProps } from "next/app";
 import { WalletStoreProvider } from "@/providers/walletStoreProvider";
 import dynamic from "next/dynamic";
 import walletAggregator from "@/providers/walletProviderAggregator";
@@ -14,12 +13,12 @@ const PolkadotWalletsContextProvider = dynamic(
 
 const Header = dynamic(() => import("@/components/Header"), { ssr: false });
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <PolkadotWalletsContextProvider walletAggregator={walletAggregator}>
       <WalletStoreProvider>
         <Header />
-        <Component {...pageProps} />
+        <main>{children}</main>
       </WalletStoreProvider>
     </PolkadotWalletsContextProvider>
   );
