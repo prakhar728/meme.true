@@ -1,111 +1,133 @@
+// components/ui/sticky-scroll-reveal.tsx
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import Image from "next/image";
+
+interface Content {
+  title: string;
+  description: string;
+  image?: string; // Optional image URL
+}
 
 export const StickyScroll = ({
   content,
-  contentClassName,
 }: {
-  content: {
-    title: string;
-    description: string;
-    content?: React.ReactNode | any;
-  }[];
-  contentClassName?: string;
+  content: Content[];
 }) => {
-  const [activeCard, setActiveCard] = React.useState(0);
-  const ref = useRef<any>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    // uncomment line 22 and comment line 23 if you DONT want the overflow container and want to have it change on the entire page scroll
-    // target: ref
-    container: ref,
-    offset: ["start start", "end start"],
+    target: containerRef,
+    offset: ["start start", "end end"]
   });
-  const cardLength = content.length;
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const cardsBreakpoints = content.map((_, index) => index / cardLength);
-    const closestBreakpointIndex = cardsBreakpoints.reduce(
-      (acc, breakpoint, index) => {
-        const distance = Math.abs(latest - breakpoint);
-        if (distance < Math.abs(latest - cardsBreakpoints[acc])) {
-          return index;
-        }
-        return acc;
-      },
-      0
+  const createScrollTransform = (index: number) => {
+    return useTransform(
+      scrollYProgress,
+      // Adjusted ranges to prevent overlap
+      [
+        index / (content.length + 0.5), // Start fade in earlier
+        (index + 0.2) / (content.length + 0.5), // Complete fade in
+        ((index + 0.8)) / (content.length + 0.5), // Start fade out
+        ((index + 1)) / (content.length + 0.5) // Complete fade out
+      ],
+      [0, 1, 1, 0]
     );
-    setActiveCard(closestBreakpointIndex);
-  });
-
-  const backgroundColors = [
-    "var(--slate-900)",
-    "var(--black)",
-    "var(--neutral-900)",
-  ];
-  const linearGradients = [
-    "linear-gradient(to bottom right, var(--cyan-500), var(--emerald-500))",
-    "linear-gradient(to bottom right, var(--pink-500), var(--indigo-500))",
-    "linear-gradient(to bottom right, var(--orange-500), var(--yellow-500))",
-  ];
-
-  const [backgroundGradient, setBackgroundGradient] = useState(
-    linearGradients[0]
-  );
-
-  useEffect(() => {
-    setBackgroundGradient(linearGradients[activeCard % linearGradients.length]);
-  }, [activeCard]);
+  };
 
   return (
     <motion.div
-      animate={{
-        backgroundColor: backgroundColors[activeCard % backgroundColors.length],
-      }}
-      className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10"
-      ref={ref}
+      ref={containerRef}
+      className="relative h-[300vh] bg-gradient-to-b from-secondary to-background"
     >
-      <div className="div relative flex items-start px-4">
-        <div className="max-w-2xl">
-          {content.map((item, index) => (
-            <div key={item.title + index} className="my-20">
-              <motion.h2
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-2xl font-bold text-slate-100"
-              >
-                {item.title}
-              </motion.h2>
-              <motion.p
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-kg text-slate-300 max-w-sm mt-10"
-              >
-                {item.description}
-              </motion.p>
+      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+        <div className="absolute w-full">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              {/* Left side content */}
+              <div className="relative h-[50vh] md:h-[60vh]">
+                {content.map((item, index) => {
+                  const opacity = createScrollTransform(index);
+                  
+                  return (
+                    <motion.div
+                      key={item.title}
+                      initial={{ opacity: 0 }}
+                      style={{ opacity: opacity as MotionValue<number> }}
+                      className="absolute top-0 left-0 w-full"
+                    >
+                      <div className="bg-card/40 backdrop-blur-sm p-8 rounded-xl border border-border">
+                        <h3 className="text-2xl font-bold text-card-foreground mb-4">
+                          {item.title}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {item.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Right side images */}
+              <div className="relative h-[50vh] md:h-[60vh]">
+                {content.map((item, index) => {
+                  const opacity = createScrollTransform(index);
+                  const translateY = useTransform(
+                    scrollYProgress,
+                    [
+                      index / (content.length + 0.5),
+                      (index + 1) / (content.length + 0.5)
+                    ],
+                    [50, -50]
+                  );
+
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0 }}
+                      style={{ 
+                        opacity: opacity as MotionValue<number>,
+                        y: translateY
+                      }}
+                      className="absolute top-0 left-0 w-full h-full"
+                    >
+                      <div className="w-full h-full rounded-xl overflow-hidden bg-accent/10">
+                        {item.image ? (
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
+                        ) : (
+                          // Fallback if no image is provided
+                          <div className="w-full h-full flex items-center justify-center bg-accent/10">
+                            <motion.div 
+                              className="w-20 h-20 bg-accent/20 rounded-full"
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, 180, 360],
+                              }}
+                              transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "linear"
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
-          ))}
-          <div className="h-40" />
+          </div>
         </div>
-      </div>
-      <div
-        style={{ background: backgroundGradient }}
-        className={cn(
-          "hidden lg:block h-60 w-80 rounded-md bg-white sticky top-10 overflow-hidden",
-          contentClassName
-        )}
-      >
-        {content[activeCard].content ?? null}
       </div>
     </motion.div>
   );

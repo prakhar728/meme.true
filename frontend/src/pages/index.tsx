@@ -11,21 +11,25 @@ const features = [
     title: "Create & Earn",
     description:
       "Design meme templates and earn royalties every time someone uses them. Our platform ensures creators are fairly compensated for their work.",
+    image: "/images/feature.png",
   },
   {
     title: "Predict & Win",
     description:
       "Use your meme-sensing abilities to predict which content will go viral. Stake tokens on your predictions and earn rewards when you're right.",
+    image: "/images/feature.png",
   },
   {
     title: "Community First",
     description:
       "Join a vibrant community of creators, predictors, and meme enthusiasts. Share ideas, collaborate on templates, and grow together.",
+    image: "/images/feature.png",
   },
   {
     title: "Transparent Rewards",
     description:
       "All transactions and rewards are handled on-chain, ensuring complete transparency and fair distribution of earnings.",
+    image: "/images/feature.png",
   },
 ];
 
