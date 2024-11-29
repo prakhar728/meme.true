@@ -6,6 +6,7 @@ import type { BaseWallet } from "@polkadot-onboard/core";
 import { ExternalLink } from "lucide-react";
 import { extensionConfig } from "@/configs/extensionConnectConfig";
 import { type ChainConfig, chainsConfig } from "@/configs/chainsConfig";
+import Link from "next/link";
 
 const WalletModal: React.FC<{
   isOpen: boolean;
@@ -205,9 +206,35 @@ const Header: React.FC = () => {
     }
   };
 
+
+
+  const navLinks = [
+    { href: '/app/memes', label: 'Explore' },
+    { href: '/app/memes/create', label: 'Create' },
+    { href: '/app/my-memes', label: 'My Memes' },
+  ];
+
+
   return (
     <header className="bg-background text-foreground p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">create-polka-dapp</h1>
+      <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
+          <h1 className="text-2xl font-bold">Meme.True</h1>
+          
+          {/* Navigation Links */}
+          <nav className="flex items-center gap-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-foreground/80 hover:text-foreground transition-colors duration-200"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+
       <div className="flex items-center space-x-4">
         {connectedWallet?.isConnected && connectedAccount ? (
           <>
