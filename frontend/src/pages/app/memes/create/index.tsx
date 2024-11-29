@@ -10,8 +10,42 @@ interface TextBox {
     x: number;
     y: number;
   };
-  isDragging: boolean;
 }
+
+const TextBoxComponent = ({ box, onTextChange, onRemove }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [text, setText] = useState(box.text);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+    onTextChange(box.id, e.target.value);
+  };
+
+  return (
+    <div
+      className="absolute cursor-move p-3 bg-black/50 rounded-lg backdrop-blur-sm"
+      style={{
+        left: `${box.position.x}px`,
+        top: `${box.position.y}px`,
+      }}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        value={text}
+        onChange={handleChange}
+        className="bg-transparent border-none outline-none text-white text-lg w-full"
+        placeholder="Enter text"
+      />
+      <button
+        onClick={() => onRemove(box.id)}
+        className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+      >
+        <Trash2 className="w-3 h-3" />
+      </button>
+    </div>
+  );
+};
 
 const MemeCreator = () => {
   const [stage, setStage] = useState(1);
@@ -21,19 +55,20 @@ const MemeCreator = () => {
   const [loadingMessage, setLoadingMessage] = useState('');
   const webcamRef = useRef<Webcam>(null);
 
-  // Mobile-optimized video constraints
+  // Improved video constraints for higher quality
   const videoConstraints = {
     width: 1920,
-    height: 1920,  // Taller height for mobile
+    height: 1920,
     facingMode: "environment",
-    aspectRatio: 1
+    aspectRatio: 1,
   };
 
+  // Configure webcam settings for higher quality
   const webcamConfig = {
     audio: false,
-    screenshotFormat: "image/png",  // PNG for better quality
-    screenshotQuality: 1,           // Maximum quality (0-1)
-    forceScreenshotSourceSize: true // Force full resolution capture
+    screenshotFormat: "image/png",
+    screenshotQuality: 1,
+    forceScreenshotSourceSize: true
   };
 
   const capturePhoto = useCallback(() => {
@@ -54,29 +89,21 @@ const MemeCreator = () => {
     setTextBoxes([...textBoxes, {
       id: Date.now(),
       text: 'Add text here',
-      position: { x: 50, y: 50 },
-      isDragging: false
+      position: { x: 50, y: 50 }
     }]);
-  };
-
-  const removeTextBox = (id: number) => {
-    setTextBoxes(textBoxes.filter(box => box.id !== id));
-  };
-
-  const updateTextBox = (id: number, newText: string) => {
-    setTextBoxes(textBoxes.map(box => 
-      box.id === id ? { ...box, text: newText } : box
-    ));
   };
 
   const generateMeme = async () => {
     setIsLoading(true);
     setLoadingMessage('Generating your meme...');
+    
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
     console.log('Generated Meme:', {
       baseImage: capturedImage,
       textOverlays: textBoxes
     });
+    
     setIsLoading(false);
     setLoadingMessage('');
   };
@@ -89,10 +116,9 @@ const MemeCreator = () => {
             <Webcam
               ref={webcamRef}
               {...webcamConfig}
-              audio={false}
-              screenshotFormat="image/jpeg"
               videoConstraints={videoConstraints}
               className="w-full h-full object-cover"
+              mirrored={true}
             />
           </div>
           <button
@@ -110,7 +136,6 @@ const MemeCreator = () => {
               src={capturedImage}
               alt="Captured"
               className="w-full h-full object-cover"
-              
             />
           </div>
           <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
@@ -147,29 +172,18 @@ const MemeCreator = () => {
           />
         )}
         {textBoxes.map((box) => (
-          <div
+          <TextBoxComponent
             key={box.id}
-            className="absolute cursor-move p-3 bg-black/50 rounded-lg backdrop-blur-sm"
-            style={{
-              left: `${box.position.x}px`,
-              top: `${box.position.y}px`,
+            box={box}
+            onTextChange={(id, newText) => {
+              setTextBoxes(prev =>
+                prev.map(b => b.id === id ? { ...b, text: newText } : b)
+              );
             }}
-          >
-            <input
-              type="text"
-              value={box.text}
-              onChange={(e) => updateTextBox(box.id, e.target.value)}
-              className="bg-transparent border-none outline-none text-white text-lg w-full"
-              placeholder="Enter text"
-            />
-            <button
-              onClick={() => removeTextBox(box.id)}
-              className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full 
-                       hover:bg-red-600 transition-colors"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
-          </div>
+            onRemove={(id) => {
+              setTextBoxes(prev => prev.filter(b => b.id !== id));
+            }}
+          />
         ))}
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
