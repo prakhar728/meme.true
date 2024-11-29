@@ -3,7 +3,6 @@ import type { AppProps } from "next/app";
 import { WalletStoreProvider } from "@/providers/walletStoreProvider";
 import dynamic from "next/dynamic";
 import walletAggregator from "@/providers/walletProviderAggregator";
-import LandingHeader from "@/components/LandingHeader";
 
 const PolkadotWalletsContextProvider = dynamic(
   () =>
