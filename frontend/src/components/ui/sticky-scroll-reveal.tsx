@@ -43,7 +43,7 @@ export const StickyScroll = ({
       <div className="sticky top-0 h-screen flex items-center overflow-hidden">
         <div className="absolute w-full">
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center">
               {/* Left side content */}
               <div className="relative h-[50vh] md:h-[60vh]">
                 {content.map((item, index) => {

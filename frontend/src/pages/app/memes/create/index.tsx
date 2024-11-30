@@ -13,11 +13,10 @@ import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
-import {
-  MemeTemplateSchema,
-} from "../../../../../true-network/schema";
+import { MemeTemplateSchema } from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
+import { Sdk, FullContext, create, mainnet, ZTG } from "@zeitgeistpm/sdk";
 
 interface Position {
   x: number;
@@ -240,10 +239,13 @@ const MemeCreator: React.FC = () => {
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const [ZeitGuestSdk, setZeitGuestSdk] = useState<Sdk<FullContext>>();
 
-  const { connectedAccount, isWalletConnected } = useWalletStore(
+  const { connectedAccount, connectedWallet } = useWalletStore(
     (state) => state
   );
+
+  const signer = connectedWallet?.signer as any;
 
   const videoConstraints = {
     width: 1920,
@@ -337,9 +339,12 @@ const MemeCreator: React.FC = () => {
       return;
     }
 
-    const upload = await pinata.upload.base64(capturedImage.replace(/^data:image\/png;base64,/, ''));
-    const cid = upload.cid;
+    const upload = await pinata.upload.base64(
+      capturedImage.replace(/^data:image\/png;base64,/, "")
+    );
     
+    const cid = upload.cid;
+
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
       cid: cid,
       isTemplate: false,
@@ -348,6 +353,51 @@ const MemeCreator: React.FC = () => {
     });
 
     //Create a zeitguest marketplace
+
+    // const params = {
+    //   baseAsset: { Ztg: null },
+    //   signer,
+    //   disputeMechanism: "Authorized",
+    //   marketType: { Categorical: 2 },
+    //   oracle: signer.address,
+    //   period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 6] },
+    //   deadlines: {
+    //     disputeDuration: 5000,
+    //     gracePeriod: 200,
+    //     oracleDuration: 500,
+    //   },
+    //   metadata: {
+    //     __meta: "markets",
+    //     question: "Will this meme take off? ",
+    //     description: "Testing the sdk.",
+    //     slug: "standalone-market-example",
+    //     categories: [
+    //       { name: "yes", ticker: "Y" },
+    //       { name: "no", ticker: "N" },
+    //     ],
+    //     tags: ["meme-template"],
+    //   },
+    //   pool: {
+    //     amount: ZTG.mul(300).toString(),
+    //     swapFee: "1",
+    //     weights: ["50000000000", "50000000000"],
+    //   },
+    // };
+
+    // const response = await ZeitGuestSdk?.model.markets.create(params);
+    // const data = response?.saturate();
+    
+    // if (data?.isRight()) {
+    //   const { market, pool } = data.unwrap();
+    //   console.log(`Market created with id: ${market.marketId}`);
+    //   console.log(`Pool created with id: ${pool.poolId}`);
+    // } else {
+    //   console.log(`Market creation had error: ${data.unwrapLeft().message}`);
+    // }
+
+    // console.log(`Market created with id: ${market.marketId}`);
+    // console.log(`Pool created with id: ${pool.poolId}`);
+
     // Make attestation of marketplace with zeitguest
 
     setStage(2);
@@ -548,6 +598,10 @@ const MemeCreator: React.FC = () => {
       const api = await getTrueNetworkInstance();
 
       setTrueApi(api);
+
+      const sdk: Sdk<FullContext> = await create(mainnet());
+
+      setZeitGuestSdk(sdk);
     };
 
     setupapi();
