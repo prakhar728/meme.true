@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useWallets } from "@/providers/PolkadotWalletsContext";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { Wallet, LogOut, ChevronDown, X, Menu } from "lucide-react";
-import type { BaseWallet } from "@polkadot-onboard/core";
+import type { BaseWallet, WalletMetadata } from "@polkadot-onboard/core";
 import { ExternalLink } from "lucide-react";
 import { extensionConfig } from "@/configs/extensionConnectConfig";
 import { type ChainConfig, chainsConfig } from "@/configs/chainsConfig";
@@ -186,6 +186,29 @@ const Header: React.FC = () => {
   const [showChains, setShowChains] = useState<boolean>(false);
   const [isChangingChain, setIsChangingChain] = useState<boolean>(false);
 
+  useEffect(() => {
+    const lastUsedWalletMetadataStr = localStorage.getItem("selectedWallet");
+
+    if (!lastUsedWalletMetadataStr) return;
+
+    try {
+      const lastUsedWalletMetadata = JSON.parse(
+        lastUsedWalletMetadataStr
+      ) as WalletMetadata;
+
+      const lastUsedWallet = wallets?.find(
+        (wallet) => wallet.metadata.id === lastUsedWalletMetadata.id
+      );
+
+      if (!lastUsedWallet) return;
+
+      handleConnectWallet(lastUsedWallet);
+    } catch (error) {
+      console.error("Error connecting last used wallet:", error);
+    }
+  }, [wallets]);
+
+
   const navLinks = [
     { href: '/app/memes', label: 'Explore' },
     { href: '/app/memes/create', label: 'Create' },
@@ -206,6 +229,9 @@ const Header: React.FC = () => {
     async (wallet: BaseWallet) => {
       setIsConnecting(true);
       setConnectingWallet(wallet.metadata.title);
+
+    localStorage.setItem("selectedWallet", JSON.stringify(wallet.metadata));
+
       try {
         await connectWallet(wallet);
         const walletAccounts = await wallet.getAccounts();

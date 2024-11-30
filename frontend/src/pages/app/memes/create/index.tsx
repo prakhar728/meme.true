@@ -337,14 +337,12 @@ const MemeCreator: React.FC = () => {
       return;
     }
 
-    console.log(capturedImage);
-    
     const upload = await pinata.upload.base64(capturedImage.replace(/^data:image\/png;base64,/, ''));
     const cid = upload.cid;
-
+    
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
       cid: cid,
-      isTemplate: "False",
+      isTemplate: false,
       marketId: 0,
       poolId: 0,
     });
