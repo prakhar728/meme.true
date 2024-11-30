@@ -1,8 +1,17 @@
-import { Char, Schema, U32, U64 } from "@truenetworkio/sdk"
+import { Bool, Schema, Text, U64 } from "@truenetworkio/sdk"
 
 export const MemeTemplateSchema = Schema.create({
-  cid: U32,
-  isTemplate: Char,
+  cid: Text,
+  isTemplate: Bool,
+  marketId: U64,
+  poolId: U64
+})
+
+
+export const MemeSchema = Schema.create({
+  cid: Text,
+  templateId: Text,
+  isTemplate: Bool,
   marketId: U64,
   poolId: U64
 })

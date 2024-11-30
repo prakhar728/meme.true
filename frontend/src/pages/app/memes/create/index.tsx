@@ -13,8 +13,12 @@ import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
-import { MemeTemplateSchema } from "../../../../../true-network/schema";
+import {
+  MemeSchema,
+  MemeTemplateSchema,
+} from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
+import { pinata } from "@/lib/utils";
 
 interface Position {
   x: number;
@@ -238,10 +242,9 @@ const MemeCreator: React.FC = () => {
   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
-  const { connectedWallet, connectedAccount, api, isWalletConnected } =
-    useWalletStore((state) => state);
-
-  console.log(isWalletConnected);
+  const { connectedAccount, isWalletConnected } = useWalletStore(
+    (state) => state
+  );
 
   const videoConstraints = {
     width: 1920,
@@ -299,6 +302,22 @@ const MemeCreator: React.FC = () => {
         height
       );
 
+      if (!trueApi || !connectedAccount?.address || !capturedImage) {
+        setIsLoading(false);
+        setLoadingMessage("");
+        return;
+      }
+
+      const upload = await pinata.upload.base64(memeDataUrl);
+
+      await MemeSchema.attest(trueApi, connectedAccount?.address, {
+        cid: upload.cid,
+        templateId: "1",
+        isTemplate: false,
+        marketId: 0,
+        poolId: 0,
+      });
+
       setFinalMeme(memeDataUrl);
       setStage(3);
     } catch (error) {
@@ -313,20 +332,24 @@ const MemeCreator: React.FC = () => {
     setIsLoading(true);
     setLoadingMessage("Generating your meme...");
 
-    console.log(trueApi, connectedAccount);
-
-    if (!trueApi || !connectedAccount?.address) {
+    if (!trueApi || !connectedAccount?.address || !capturedImage) {
       setIsLoading(false);
       setLoadingMessage("");
       return;
     }
 
+    const upload = await pinata.upload.base64(capturedImage);
+    const cid = upload.cid;
+
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
-      cid: 32,
-      isTemplate: "F",
-      marketId: 22,
-      poolId: 20,
+      cid: cid,
+      isTemplate: true,
+      marketId: 0,
+      poolId: 0,
     });
+
+    //Create a zeitguest marketplace
+    // Make attestation of marketplace with zeitguest
 
     setStage(2);
     setIsLoading(false);
