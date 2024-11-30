@@ -402,6 +402,13 @@ const MemeCreator: React.FC = () => {
 
     // Make attestation of marketplace with zeitguest
 
+    await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
+      cid: cid,
+      isTemplate: false,
+      marketId: 1,
+      poolId: 1,
+    });
+
     setStage(2);
     setIsLoading(false);
     setLoadingMessage("");
