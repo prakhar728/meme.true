@@ -35,7 +35,6 @@ const features = [
   },
 ];
 
-// Update the InitialLoader component
 const InitialLoader = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2000);
@@ -47,12 +46,12 @@ const InitialLoader = ({ onComplete }: { onComplete: () => void }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background flex items-center justify-center"
+      className="fixed inset-0 bg-background flex items-center justify-center px-4"
     >
-      <div className="h-[40rem] w-full bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
-        <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center relative z-20 flex items-center">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-4xl bg-background flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-bold text-center relative z-20 flex flex-wrap justify-center gap-2">
           <span
-            className="text-foreground mr-2"
+            className="text-foreground"
             style={{ WebkitTextStroke: "1px rgb(var(--muted-foreground))" }}
           >
             Meme
@@ -69,7 +68,6 @@ const InitialLoader = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-// Feature Card Component
 const FeatureCard = ({
   title,
   description,
@@ -84,15 +82,14 @@ const FeatureCard = ({
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5 }}
-    className="bg-gray-800/50 p-6 rounded-xl backdrop-blur-sm hover:bg-gray-800/70 transition-all"
+    className="bg-gray-800/50 p-4 sm:p-6 rounded-xl backdrop-blur-sm hover:bg-gray-800/70 transition-all"
   >
-    <Icon className="w-8 h-8 text-purple-400 mb-4" />
-    <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
-    <p className="text-gray-300">{description}</p>
+    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mb-3 sm:mb-4" />
+    <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">{title}</h3>
+    <p className="text-sm sm:text-base text-gray-300">{description}</p>
   </motion.div>
 );
 
-// Timeline Item Component
 const TimelineItem = ({
   date,
   title,
@@ -105,22 +102,16 @@ const TimelineItem = ({
   align: string;
 }) => (
   <motion.div
-    initial={{ opacity: 0, x: align === "left" ? -50 : 50 }}
+    initial={{ opacity: 0, x: 0 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5 }}
-    className={`flex w-full ${
-      align === "left" ? "justify-end pr-8" : "justify-start pl-8"
-    } relative`}
+    className="w-full px-4 sm:px-8 mb-8 sm:mb-0"
   >
-    <div
-      className={`w-1/2 p-6 bg-gray-800/50 rounded-xl backdrop-blur-sm ${
-        align === "left" ? "text-right" : "text-left"
-      }`}
-    >
-      <span className="text-purple-400 text-sm">{date}</span>
-      <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
-      <p className="text-gray-300">{description}</p>
+    <div className="p-4 sm:p-6 bg-gray-800/50 rounded-xl backdrop-blur-sm">
+      <span className="text-purple-400 text-xs sm:text-sm">{date}</span>
+      <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">{title}</h3>
+      <p className="text-sm sm:text-base text-gray-300">{description}</p>
     </div>
   </motion.div>
 );
@@ -131,25 +122,24 @@ export default function Home() {
 
   return (
     <div className="bg-gray-900 min-h-screen">
-       <LandingHeader />
+      <LandingHeader />
 
       <AnimatePresence>
         {loading && <InitialLoader onComplete={() => setLoading(false)} />}
       </AnimatePresence>
 
-      {/* Main Content */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 2 }}
       >
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
           <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background" />
           <motion.div
             initial={{ y: 20 }}
             animate={{ y: 0 }}
-            className="text-center z-10 max-w-4xl mx-auto px-4"
+            className="text-center z-10 w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto"
           >
             <TypewriterEffect
               words={[
@@ -162,30 +152,33 @@ export default function Home() {
                   className: "text-muted-foreground",
                 },
               ]}
-              className="text-6xl md:text-7xl font-bold mb-6"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6"
               cursorClassName="hidden"
             />
             <TextGenerateEffect
               words="Where Memes Meet Markets. Create, Predict, Earn."
-              className="text-2xl md:text-3xl text-primary font-medium mb-8"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-primary font-medium mb-6 sm:mb-8"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-3 rounded-lg text-lg font-medium transition-colors flex items-center mx-auto"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 sm:px-8 py-2 sm:py-3 rounded-lg text-base sm:text-lg font-medium transition-colors flex items-center mx-auto"
               onClick={() => router.push('/app/memes')}
             >
               Explore Platform
-              <ChevronRight className="ml-2 w-5 h-5" />
+              <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </motion.div>
         </section>
+
         {/* Features Section */}
-        <StickyScroll content={features} />
+        <div>
+          <StickyScroll content={features} />
+        </div>
 
         {/* Roadmap Section */}
-        <TracingBeam className="px-4">
-          <div className="max-w-2xl mx-auto antialiased pt-4 relative">
+        <TracingBeam className="px-4 sm:px-6 lg:px-8">
+          <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl mx-auto antialiased pt-4 relative">
             {[
               {
                 date: "Q1 2024",
@@ -212,74 +205,75 @@ export default function Home() {
             ].map((item, index) => (
               <motion.div
                 key={index}
-                className="mb-32"
+                className="mb-8 sm:mb-16 lg:mb-32"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
                 <motion.div
-                  className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:bg-gray-800/60 transition-all duration-300"
+                  className="bg-gray-800/40 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-700/50 hover:bg-gray-800/60 transition-all duration-300"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 rounded-full bg-purple-400 mr-2" />
-                    <h3 className="text-sm text-purple-400">{item.date}</h3>
+                    <h3 className="text-xs sm:text-sm text-purple-400">{item.date}</h3>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
                     {item.title}
                   </h2>
-                  <p className="text-gray-300">{item.description}</p>
+                  <p className="text-sm sm:text-base text-gray-300">{item.description}</p>
                 </motion.div>
               </motion.div>
             ))}
           </div>
         </TracingBeam>
+
         {/* Footer */}
-        <footer className="bg-gray-800/50 backdrop-blur-sm py-12">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <footer className="bg-gray-800/50 backdrop-blur-sm py-8 sm:py-12">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-4">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
                   Meme.True
                 </h3>
-                <p className="text-gray-300">
+                <p className="text-sm sm:text-base text-gray-300">
                   The future of meme creation and prediction markets.
                 </p>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-4">
                   Platform
                 </h4>
-                <ul className="space-y-2 text-gray-300">
+                <ul className="space-y-2 text-sm sm:text-base text-gray-300">
                   <li>Features</li>
                   <li>Roadmap</li>
                   <li>Documentation</li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-4">
                   Resources
                 </h4>
-                <ul className="space-y-2 text-gray-300">
+                <ul className="space-y-2 text-sm sm:text-base text-gray-300">
                   <li>Help Center</li>
                   <li>Blog</li>
                   <li>Terms of Service</li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-4">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-4">
                   Connect
                 </h4>
                 <div className="flex space-x-4">
-                  <ChevronRight className="w-6 h-6 text-gray-300 hover:text-white cursor-pointer" />
-                  <ChevronRight className="w-6 h-6 text-gray-300 hover:text-white cursor-pointer" />
-                  <ChevronRight className="w-6 h-6 text-gray-300 hover:text-white cursor-pointer" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300 hover:text-white cursor-pointer" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300 hover:text-white cursor-pointer" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300 hover:text-white cursor-pointer" />
                 </div>
               </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
+            <div className="mt-8 pt-8 border-t border-gray-700 text-center text-xs sm:text-sm text-gray-400">
               <p>&copy; 2024 Meme.True. All rights reserved.</p>
             </div>
           </div>
