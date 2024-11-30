@@ -13,7 +13,7 @@ import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
-import { MemeTemplateSchema } from "../../../../../true-network/schema";
+import { MemeSchema, MemeTemplateSchema } from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
 import { Sdk, FullContext, create, mainnet, ZTG, batterystation } from "@zeitgeistpm/sdk";
@@ -311,13 +311,13 @@ const MemeCreator: React.FC = () => {
 
       const upload = await pinata.upload.base64(memeDataUrl);
 
-      // await MemeSchema.attest(trueApi, connectedAccount?.address, {
-      //   cid: upload.cid,
-      //   templateId: "1",
-      //   isTemplate: false,
-      //   marketId: 0,
-      //   poolId: 0,
-      // });
+      await MemeSchema.attest(trueApi, connectedAccount?.address, {
+        cid: upload.cid,
+        isTemplate: false,
+        memeTemplate: "1",
+        marketId: 0,
+        poolId: 0,
+      });
 
       setFinalMeme(memeDataUrl);
       setStage(3);
@@ -354,51 +354,51 @@ const MemeCreator: React.FC = () => {
 
     //Create a zeitguest marketplace
 
-    const params = {
-      baseAsset: { Ztg: null },
-      signer,
-      disputeMechanism: "Authorized",
-      marketType: { Categorical: 2 },
-      oracle: signer.address,
-      period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 6] },
-      deadlines: {
-        disputeDuration: 5000,
-        gracePeriod: 200,
-        oracleDuration: 500,
-      },
-      metadata: {
-        __meta: "markets",
-        question: "Will this meme take off? ",
-        description: "Testing the sdk.",
-        slug: "standalone-market-example",
-        categories: [
-          { name: "yes", ticker: "Y" },
-          { name: "no", ticker: "N" },
-        ],
-        tags: ["meme-template"],
-      },
-      pool: {
-        amount: ZTG.mul(300).toString(),
-        swapFee: "1",
-        weights: ["50000000000", "50000000000"],
-      },
-    };
+    // const params = {
+    //   baseAsset: { Ztg: null },
+    //   signer,
+    //   disputeMechanism: "Authorized",
+    //   marketType: { Categorical: 2 },
+    //   oracle: signer.address,
+    //   period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 6] },
+    //   deadlines: {
+    //     disputeDuration: 5000,
+    //     gracePeriod: 200,
+    //     oracleDuration: 500,
+    //   },
+    //   metadata: {
+    //     __meta: "markets",
+    //     question: "Will this meme take off? ",
+    //     description: "Testing the sdk.",
+    //     slug: "standalone-market-example",
+    //     categories: [
+    //       { name: "yes", ticker: "Y" },
+    //       { name: "no", ticker: "N" },
+    //     ],
+    //     tags: ["meme-template"],
+    //   },
+    //   pool: {
+    //     amount: ZTG.mul(300).toString(),
+    //     swapFee: "1",
+    //     weights: ["50000000000", "50000000000"],
+    //   },
+    // };
 
-    const response = await ZeitGuestSdk?.model.markets.create(params);
-    const data = response?.saturate();
+    // const response = await ZeitGuestSdk?.model.markets.create(params);
+    // const data = response?.saturate();
     
-    if (data?.isRight()) {
-      console.log(data);
+    // if (data?.isRight()) {
+    //   console.log(data);
       
-      const { market, pool } = data.unwrap();
-      console.log(`Market created with id: ${market.marketId}`);
-      console.log(`Pool created with id: ${pool.poolId}`);
-    } else {
-      console.log(`Market creation had error: ${data.unwrapLeft().message}`);
-    }
+    //   const { market, pool } = data.unwrap();
+    //   console.log(`Market created with id: ${market.marketId}`);
+    //   console.log(`Pool created with id: ${pool.poolId}`);
+    // } else {
+    //   console.log(`Market creation had error: ${data.unwrapLeft().message}`);
+    // }
 
-    console.log(`Market created with id: ${market.marketId}`);
-    console.log(`Pool created with id: ${pool.poolId}`);
+    // console.log(`Market created with id: ${market.marketId}`);
+    // console.log(`Pool created with id: ${pool.poolId}`);
 
     // Make attestation of marketplace with zeitguest
 

@@ -6,3 +6,12 @@ export const MemeTemplateSchema = Schema.create({
   marketId: U64,
   poolId: U64
 })
+
+
+export const MemeSchema = Schema.create({
+  cid: Text,
+  isTemplate: Bool,
+  memeTemplate: Text,
+  marketId: U64,
+  poolId: U64
+});
