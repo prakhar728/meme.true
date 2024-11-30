@@ -344,7 +344,7 @@ const MemeCreator: React.FC = () => {
 
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
       cid: cid,
-      isTemplate: true,
+      isTemplate: "False",
       marketId: 0,
       poolId: 0,
     });

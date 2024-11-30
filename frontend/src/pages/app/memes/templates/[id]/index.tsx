@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import Layout from "@/components/Layout";
 
 const MemeView = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
-  const memes = [
+  const memes = [ 
     { id: 1, imageUrl: "/images/meme-1.webp", title: "Meme 1" },
     { id: 2, imageUrl: "/images/meme-2.webp", title: "Meme 2" },
     { id: 3, imageUrl: "/images/meme-3.webp", title: "Meme 3" },
@@ -33,7 +34,7 @@ const MemeView = () => {
         // Left swipe
         handleDislike();
       }
-    } 
+    }
     // Vertical swipe
     else if (offset.y < -swipeThreshold) {
       // Swipe up
@@ -64,50 +65,52 @@ const MemeView = () => {
     enter: (direction: number) => ({
       x: direction === 1 ? 1000 : direction === -1 ? -1000 : 0,
       y: direction === 2 ? 1000 : 0,
-      opacity: 0
+      opacity: 0,
     }),
     center: {
       x: 0,
       y: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction: number) => ({
       x: direction === 1 ? -1000 : direction === -1 ? 1000 : 0,
       y: direction === 2 ? -1000 : 0,
-      opacity: 0
-    })
+      opacity: 0,
+    }),
   };
 
   return (
-    <div className="bg-[hsl(220,10%,8%)] min-h-screen flex items-center justify-center p-4">
-      <div className="relative w-[400px] h-[60vh] overflow-hidden ">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={currentIndex}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
-            drag={true}
-            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            dragElastic={1}
-            onDragEnd={handleDragEnd}
-            className="absolute w-full h-full rounded-xl shadow-lg"
-          >
-            <img
-              src={memes[currentIndex].imageUrl}
-              alt={memes[currentIndex].title}
-              className="w-full h-full object-contain rounded-xl"
-            />
-          </motion.div>
-        </AnimatePresence>
+    <Layout>
+      <div className="bg-[hsl(220,10%,8%)] min-h-screen flex items-center justify-center p-4">
+        <div className="relative w-[400px] h-[60vh] overflow-hidden ">
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={currentIndex}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+              }}
+              drag={true}
+              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+              dragElastic={1}
+              onDragEnd={handleDragEnd}
+              className="absolute w-full h-full rounded-xl shadow-lg"
+            >
+              <img
+                src={memes[currentIndex].imageUrl}
+                alt={memes[currentIndex].title}
+                className="w-full h-full object-contain rounded-xl"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
