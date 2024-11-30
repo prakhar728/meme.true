@@ -6,9 +6,18 @@ const MemeView = () => {
   const [direction, setDirection] = useState(0);
 
   const memes = [
-    { id: 1, imageUrl: "/images/sample-meme-1.jpg", title: "Meme 1" },
-    { id: 2, imageUrl: "/images/feature.png", title: "Meme 2" },
-    { id: 3, imageUrl: "/images/image.png", title: "Meme 3" }
+    { id: 1, imageUrl: "/images/meme-1.webp", title: "Meme 1" },
+    { id: 2, imageUrl: "/images/meme-1.webp", title: "Meme 2" },
+    { id: 3, imageUrl: "/images/meme-1.webp", title: "Meme 3" },
+    { id: 4, imageUrl: "/images/meme-1.webp", title: "Meme 4" },
+    { id: 5, imageUrl: "/images/meme-1.webp", title: "Meme 5" },
+    { id: 6, imageUrl: "/images/meme-1.webp", title: "Meme 6" },
+    { id: 7, imageUrl: "/images/meme-1.webp", title: "Meme 7" },
+    { id: 8, imageUrl: "/images/meme-1.webp", title: "Meme 8" },
+    { id: 9, imageUrl: "/images/meme-1.webp", title: "Meme 9" },
+    { id: 10, imageUrl: "/images/meme-1.webp", title: "Meme 10" },
+    { id: 11, imageUrl: "/images/meme-1.webp", title: "Meme 11" },
+    { id: 12, imageUrl: "/images/meme-1.webp", title: "Meme 12" },
   ];
 
   const handleDragEnd = (event: any, info: PanInfo) => {

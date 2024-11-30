@@ -22,7 +22,7 @@ const MemeGallery = () => {
   const memeTemplates: MemeTemplate[] = [
     {
       id: "1",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-1.webp",
       title: "Featured Meme 1",
       createdAt: "2024-03-20",
       likes: 1234,
@@ -31,7 +31,7 @@ const MemeGallery = () => {
     },
     {
       id: "2",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-2.webp",
 
       title: "Featured Meme 2",
       createdAt: "2024-03-20",
@@ -42,7 +42,7 @@ const MemeGallery = () => {
     // Regular memes...
     {
       id: "4",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-3.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
@@ -50,7 +50,7 @@ const MemeGallery = () => {
     },
     {
       id: "5",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-4.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
@@ -58,7 +58,7 @@ const MemeGallery = () => {
     },
     {
       id: "6",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-5.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
@@ -66,7 +66,7 @@ const MemeGallery = () => {
     },
     {
       id: "7",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-6.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
@@ -74,7 +74,7 @@ const MemeGallery = () => {
     },
     {
       id: "8",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-7.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
@@ -82,13 +82,60 @@ const MemeGallery = () => {
     },
     {
       id: "9",
-      imageUrl: "/images/sample-meme-1.jpg",
+      imageUrl: "/images/meme-8.webp",
 
       title: "Regular Meme",
       createdAt: "2024-03-20",
       likes: 100,
     },
-    // Add more memes...
+    {
+      id: "10",
+      imageUrl: "/images/meme-9.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
+    {
+      id: "11",
+      imageUrl: "/images/meme-10.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
+    {
+      id: "12",
+      imageUrl: "/images/meme-11.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
+    {
+      id: "13",
+      imageUrl: "/images/meme-13.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
+    {
+      id: "14",
+      imageUrl: "/images/meme-14.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
+    {
+      id: "15",
+      imageUrl: "/images/meme-15.webp",
+
+      title: "Regular Meme",
+      createdAt: "2024-03-20",
+      likes: 100,
+    },
   ];
 
   const router = useRouter();

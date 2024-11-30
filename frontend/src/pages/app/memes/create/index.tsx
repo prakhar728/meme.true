@@ -14,7 +14,6 @@ import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
 import {
-  MemeSchema,
   MemeTemplateSchema,
 } from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
@@ -310,13 +309,13 @@ const MemeCreator: React.FC = () => {
 
       const upload = await pinata.upload.base64(memeDataUrl);
 
-      await MemeSchema.attest(trueApi, connectedAccount?.address, {
-        cid: upload.cid,
-        templateId: "1",
-        isTemplate: false,
-        marketId: 0,
-        poolId: 0,
-      });
+      // await MemeSchema.attest(trueApi, connectedAccount?.address, {
+      //   cid: upload.cid,
+      //   templateId: "1",
+      //   isTemplate: false,
+      //   marketId: 0,
+      //   poolId: 0,
+      // });
 
       setFinalMeme(memeDataUrl);
       setStage(3);
@@ -338,7 +337,9 @@ const MemeCreator: React.FC = () => {
       return;
     }
 
-    const upload = await pinata.upload.base64(capturedImage);
+    console.log(capturedImage);
+    
+    const upload = await pinata.upload.base64(capturedImage.replace(/^data:image\/png;base64,/, ''));
     const cid = upload.cid;
 
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
