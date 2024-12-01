@@ -8,6 +8,7 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 import { TracingBeam } from "@/components/ui/tracing-beam";
 import LandingHeader from "@/components/LandingHeader";
+import Link from "next/link";
 
 const features = [
   {
@@ -104,7 +105,6 @@ const FloatingMemes = () => {
 };
 
 const HeroSection = () => {
-
   return (
     <section className="min-h-screen flex items-center relative overflow-hidden px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background" />
@@ -138,21 +138,26 @@ const HeroSection = () => {
               className="text-2xl sm:text-3xl text-accent font-medium mb-8"
             />
             <div className="flex flex-wrap gap-4 place-content-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-black hover:bg-black/40 hover:text-black text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
-              >
-                Start Creating
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-slate-600 hover:bg-slate-300 hover:text-slate-900 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
-              >
-                Explore Memes
-              </motion.button>
+              <Link href="/app/memes/create">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-black hover:bg-black/40 hover:text-black text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                >
+                  Start Creating
+                  <ChevronRight className="ml-2 w-5 h-5" />
+                </motion.button>
+              </Link>
+
+              <Link href="/app/memes">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-slate-600 hover:bg-slate-300 hover:text-slate-900 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                >
+                  Explore Memes
+                </motion.button>
+              </Link>
             </div>
           </motion.div>
 
