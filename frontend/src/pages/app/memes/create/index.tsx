@@ -33,6 +33,8 @@ import {
 import { Keyring } from "@polkadot/api";
 import Decimal from "decimal.js";
 import { templates } from "@/lib/meme";
+import { Contract } from "ethers";
+import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/ethers";
 
 interface Position {
   x: number;
@@ -265,33 +267,6 @@ const MemeCreator: React.FC = () => {
   };
   const signer = getSigner();
 
-  const videoConstraints = {
-    width: 1920,
-    height: 1920,
-    facingMode: "environment",
-    aspectRatio: 1,
-  };
-
-  const webcamConfig = {
-    audio: false,
-    screenshotFormat: "image/png" as "image/png" | "image/webp" | "image/jpeg",
-    screenshotQuality: 1,
-    forceScreenshotSourceSize: true,
-  };
-
-  const capturePhoto = useCallback(() => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot({
-        width: 1920,
-        height: 1920,
-      });
-      setCapturedImage(imageSrc);
-    }
-  }, [webcamRef]);
-
-  const retakePhoto = () => {
-    setCapturedImage(null);
-  };
 
   const addTextBox = () => {
     const newBox: TextBox = {
@@ -387,6 +362,58 @@ const MemeCreator: React.FC = () => {
   };
 
   const Stage1 = () => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      setIsLoading(true);
+      setLoadingMessage("Uploading your photo...");
+
+      try {
+        // Convert the file to base64
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64String = reader.result as string;
+
+          // Upload to IPFS via Pinata
+          try {
+            const upload = await pinata.upload.base64(
+              base64String.replace(/^data:image\/\w+;base64,/, "")
+            );
+
+            // Set the captured image to the IPFS URL
+            setCapturedImage(`https://gateway.pinata.cloud/ipfs/${upload.cid}`);
+
+            const contract = new Contract(DEPLOYED_CONTRACT, CONTRACT_ABI, signer as any);
+
+            console.log(await contract.voteCost());
+            
+            // Create market logic would go here
+            // if (trueApi && connectedAccount?.address) {
+            //   await MemeTemplateSchema.attest(trueApi, connectedAccount.address, {
+            //     cid: upload.cid,
+            //     isTemplate: false,
+            //     marketId: 0,
+            //     poolId: 0,
+            //   });
+            // }
+          } catch (error) {
+            console.error("Error uploading to IPFS:", error);
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error processing file:", error);
+      } finally {
+        setIsLoading(false);
+        setLoadingMessage("");
+      }
+    };
+
     return (
       <div className="flex flex-col items-center w-full">
         <div className="w-full">
@@ -394,6 +421,34 @@ const MemeCreator: React.FC = () => {
 
           {/* Grid Container */}
           <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {/* Upload Photo Tile */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden cursor-pointer group"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Camera className="w-8 h-8 mb-2" />
+                <span className="text-sm font-medium">Upload Photo</span>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium">
+                  Upload Photo
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Existing Templates */}
             {templates.map((template) => (
               <motion.div
                 key={template.id}
@@ -443,7 +498,7 @@ const MemeCreator: React.FC = () => {
                 <button
                   onClick={generateTemplate}
                   className="px-6 py-3 bg-primary hover:bg-primary/90 rounded-lg
-                           transition-colors flex items-center gap-2 text-black "
+                           transition-colors flex items-center gap-2 text-black"
                 >
                   Use Template
                 </button>
