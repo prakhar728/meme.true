@@ -41,6 +41,9 @@ importers:
       '@zeitgeistpm/utility':
         specifier: 3.8.0
         version: 3.8.0(@polkadot/api@15.0.1)(@polkadot/types@15.0.1)(@polkadot/util@12.6.2)
+      '@zeitgeistpm/web3.storage':
+        specifier: ^3.5.0
+        version: 3.8.0(@polkadot/api@15.0.1)(@polkadot/types@15.0.1)(@polkadot/util@12.6.2)(encoding@0.1.13)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
