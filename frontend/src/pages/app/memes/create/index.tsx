@@ -1,17 +1,38 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, RefreshCcw, Type, Plus, Trash2, Loader, Minus } from "lucide-react";
+import {
+  Camera,
+  RefreshCcw,
+  Type,
+  Plus,
+  Trash2,
+  Loader,
+  Minus,
+} from "lucide-react";
 import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
-import { MemeSchema, MemeTemplateSchema } from "../../../../../true-network/schema";
+import {
+  MemeSchema,
+  MemeTemplateSchema,
+} from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
 import { IPFS } from "@zeitgeistpm/web3.storage";
-import { Sdk, create, createStorage, RpcContext, CreateMarketParams, ZTG, FullContext, swapFeeFromFloat } from "@zeitgeistpm/sdk";
+import {
+  Sdk,
+  create,
+  createStorage,
+  RpcContext,
+  CreateMarketParams,
+  ZTG,
+  FullContext,
+  swapFeeFromFloat,
+} from "@zeitgeistpm/sdk";
 import { Keyring } from "@polkadot/api";
-import Decimal from 'decimal.js';
+import Decimal from "decimal.js";
+import { templates } from "@/lib/meme";
 
 interface Position {
   x: number;
@@ -66,7 +87,9 @@ const TextControl = ({
         >
           <Minus className="w-4 h-4" />
         </button>
-        <span className="text-sm text-gray-300">Font Size: {box.fontSize}px</span>
+        <span className="text-sm text-gray-300">
+          Font Size: {box.fontSize}px
+        </span>
         <button
           onClick={() => onFontSizeChange(box.id, true)}
           className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -84,14 +107,24 @@ const TextControl = ({
   );
 };
 
-const DraggableText = ({ box, onMove }: { box: TextBox; onMove: (id: string, position: Position) => void }) => {
+const DraggableText = ({
+  box,
+  onMove,
+}: {
+  box: TextBox;
+  onMove: (id: string, position: Position) => void;
+}) => {
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     // Prevent default behavior to stop pull-to-refresh
     e.preventDefault();
 
     const isTouch = "touches" in e;
-    const startX = isTouch ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const startY = isTouch ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+    const startX = isTouch
+      ? e.touches[0].clientX
+      : (e as React.MouseEvent).clientX;
+    const startY = isTouch
+      ? e.touches[0].clientY
+      : (e as React.MouseEvent).clientY;
 
     const element = isTouch
       ? (e.target as HTMLElement).getBoundingClientRect()
@@ -104,8 +137,14 @@ const DraggableText = ({ box, onMove }: { box: TextBox; onMove: (id: string, pos
       // Prevent default to stop unwanted behaviors
       event.preventDefault();
 
-      const moveX = "touches" in event ? event.touches[0].clientX : (event as MouseEvent).clientX;
-      const moveY = "touches" in event ? event.touches[0].clientY : (event as MouseEvent).clientY;
+      const moveX =
+        "touches" in event
+          ? event.touches[0].clientX
+          : (event as MouseEvent).clientX;
+      const moveY =
+        "touches" in event
+          ? event.touches[0].clientY
+          : (event as MouseEvent).clientY;
 
       // Get the container boundaries
       const container = document.querySelector(".image-container");
@@ -275,7 +314,12 @@ const MemeCreator: React.FC = () => {
       const container = imageContainerRef.current;
       const { width, height } = container.getBoundingClientRect();
 
-      const memeDataUrl = await generateMemeCanvas(capturedImage, textBoxes, width, height);
+      const memeDataUrl = await generateMemeCanvas(
+        capturedImage,
+        textBoxes,
+        width,
+        height
+      );
 
       if (!trueApi || !connectedAccount?.address || !capturedImage) {
         setIsLoading(false);
@@ -283,15 +327,15 @@ const MemeCreator: React.FC = () => {
         return;
       }
 
-      const upload = await pinata.upload.base64(memeDataUrl);
+      // const upload = await pinata.upload.base64(memeDataUrl);
 
-      await MemeSchema.attest(trueApi, connectedAccount?.address, {
-        cid: upload.cid,
-        isTemplate: false,
-        memeTemplate: "1",
-        marketId: 0,
-        poolId: 0,
-      });
+      // await MemeSchema.attest(trueApi, connectedAccount?.address, {
+      //   cid: upload.cid,
+      //   isTemplate: false,
+      //   memeTemplate: "1",
+      //   marketId: 0,
+      //   poolId: 0,
+      // });
 
       setFinalMeme(memeDataUrl);
       setStage(3);
@@ -305,151 +349,111 @@ const MemeCreator: React.FC = () => {
 
   const generateTemplate = async () => {
     setIsLoading(true);
-    setLoadingMessage("Generating your meme...");
+    setLoadingMessage("Selecting your meme...");
 
-    if (!trueApi || !connectedAccount?.address || !capturedImage) {
-      setIsLoading(false);
-      setLoadingMessage("");
-      return;
-    }
+    // if (!trueApi || !connectedAccount?.address || !capturedImage) {
+    //   setIsLoading(false);
+    //   setLoadingMessage("");
+    //   return;
+    // }
 
-    const upload = await pinata.upload.base64(capturedImage.replace(/^data:image\/png;base64,/, ""));
+    // const upload = await pinata.upload.base64(
+    //   capturedImage.replace(/^data:image\/png;base64,/, "")
+    // );
 
-    const cid = upload.cid;
+    // const cid = upload.cid;
 
-    await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
-      cid: cid,
-      isTemplate: false,
-      marketId: 0,
-      poolId: 0,
-    });
+    // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
+    //   cid: cid,
+    //   isTemplate: false,
+    //   marketId: 0,
+    //   poolId: 0,
+    // });
 
-    //Create a zeitgiest marketplace
+    // //Create a marketplace right here
 
-    const params: CreateMarketParams<FullContext> = {
-      signer,
-      baseAsset: { Ztg: null },
-       scoringRule: 'Lmsr',
-      disputeMechanism: "Authorized",
-      marketType: { Categorical: 2 }, // 2 outcomes have to be the same number as metadata.categories.length
-      oracle: signer.address,
-      period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 24 * 1000 * 2] },
-      deadlines: {
-        disputeDuration: 5000,
-        gracePeriod: 200,
-        oracleDuration: 500,
-      },
-      metadata: {
-        __meta: "markets",
-        question: "Will the example work?",
-        description: "Testing the sdk.",
-        slug: "standalone-market-example",
-        categories: [
-          { name: "yes", ticker: "Y" },
-          { name: "no", ticker: "N" },
-        ],
-        tags: ["Science"],
-      },
-      pool: {
-        amount: ZTG.mul(10).toString(), // ammount of base asset in the pool: 100 ZTG,
-        swapFee: swapFeeFromFloat(1).toString(), // 1% swap fee,
-        spotPrices: [
-          new Decimal(0.2).mul(ZTG).toString(), // yes will have 20% prediction,
-          new Decimal(0.8).mul(ZTG).toString(), // no will have 80% prediction,
-        ],
-      },
-    };
+    // // Make attestation of marketplace with zeitguest
 
-    const response = await ZeitGiestSdk?.model.markets.create(params);
-    const data = response?.saturate();
-
-    
-    
-    if (data?.isRight()) {
-      const { market } = data.unwrap();
-      console.log(`Market created with id: ${market.marketId}`);
-
-      const poolCreationResponse = await market.deploySwapPoolAndAdditionalLiquidity({
-        signer,
-        amount: ZTG.mul(300).toString(),
-        swapFee: swapFeeFromFloat(1).toString(),
-        weights: evenWeights(2),
-      });
-      
-      /**
-       * Extracts the pool from events in the block.
-       */
-      const pool = poolCreationResponse.saturate().unwrap();
-      
-      /**
-       * Print the results.
-       */
-      console.log(`Pool created with id: ${pool.poolId}`);
-    } else {
-      console.log(`Market creation had error: ${data?.unwrapLeft().message}`);
-    }
-
-    // Make attestation of marketplace with zeitguest
-
-    await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
-      cid: cid,
-      isTemplate: false,
-      marketId: 1,
-      poolId: 1,
-    });
+    // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
+    //   cid: cid,
+    //   isTemplate: false,
+    //   marketId: 1,
+    //   poolId: 1,
+    // });
 
     setStage(2);
     setIsLoading(false);
     setLoadingMessage("");
   };
 
-  const Stage1 = () => (
-    <div className="flex flex-col items-center w-full">
-      {!capturedImage ? (
-        <>
-          <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
-            <Webcam
-              ref={webcamRef}
-              {...webcamConfig}
-              videoConstraints={videoConstraints}
-              className="w-full h-full object-cover"
-              mirrored={false}
-            />
+  const Stage1 = () => {
+    return (
+      <div className="flex flex-col items-center w-full">
+        <div className="w-full">
+          <h2 className="text-2xl font-bold mb-6">Choose a Template</h2>
+
+          {/* Grid Container */}
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {templates.map((template) => (
+              <motion.div
+                key={template.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden cursor-pointer group"
+                onClick={() => {
+                  setCapturedImage(template.src);
+                }}
+              >
+                <img
+                  src={template.src}
+                  alt={template.alt}
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium">
+                    Use Template
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
-          <button
-            onClick={capturePhoto}
-            className="p-6 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors shadow-lg"
-            aria-label="Capture photo"
-          >
-            <Camera className="w-8 h-8" />
-          </button>
-        </>
-      ) : (
-        <>
-          <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
-            <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+        </div>
+
+        {capturedImage && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-xl max-w-2xl w-full p-4">
+              <div className="relative w-full aspect-square bg-gray-900 rounded-lg overflow-hidden mb-4">
+                <img
+                  src={capturedImage}
+                  alt="Selected Template"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setCapturedImage(null)}
+                  className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 
+                           transition-colors flex items-center gap-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={generateTemplate}
+                  className="px-6 py-3 bg-primary hover:bg-primary/90 rounded-lg
+                           transition-colors flex items-center gap-2 text-black "
+                >
+                  Use Template
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="flex sm:flex-row w-full gap-4 px-4">
-            <button
-              onClick={retakePhoto}
-              className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
-                       transition-colors flex items-center justify-center gap-2 shadow-lg"
-            >
-              <RefreshCcw className="w-5 h-5" />
-            </button>
-            <button
-              onClick={generateTemplate}
-              className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
-                       transition-colors flex items-center justify-center gap-2 shadow-lg"
-            >
-              <Type className="w-5 h-5" />
-              <span>Use Template</span>
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   const Stage2 = () => (
     <div className="flex flex-col items-center w-full">
@@ -460,7 +464,11 @@ const MemeCreator: React.FC = () => {
             className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4 image-container"
             onTouchMove={(e) => e.preventDefault()} // Prevent pull-to-refresh
           >
-            <img src={capturedImage} alt="Template" className="w-full h-full object-cover" />
+            <img
+              src={capturedImage}
+              alt="Template"
+              className="w-full h-full object-contain"
+            />
           </div>
         )}
         {textBoxes.map((box) => (
@@ -468,24 +476,27 @@ const MemeCreator: React.FC = () => {
             key={box.id}
             box={box}
             onMove={(id, newPosition) => {
-              setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, position: newPosition } : b)));
+              setTextBoxes((prev) =>
+                prev.map((b) =>
+                  b.id === id ? { ...b, position: newPosition } : b
+                )
+              );
             }}
           />
         ))}
       </div>
       <div className="w-full space-y-4">
-        <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
+        <div className="flex sm:flex-row w-full gap-4 px-4">
           <button
             onClick={addTextBox}
-            className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+            className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
                      transition-colors flex items-center justify-center gap-2 shadow-lg"
           >
             <Plus className="w-5 h-5" />
-            <span>Add Text</span>
           </button>
           <button
             onClick={generateMeme}
-            className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+            className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
                      transition-colors flex items-center justify-center gap-2 shadow-lg"
           >
             Generate Meme
@@ -499,7 +510,9 @@ const MemeCreator: React.FC = () => {
                 key={box.id}
                 box={box}
                 onTextChange={(id, newText) => {
-                  setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, text: newText } : b)));
+                  setTextBoxes((prev) =>
+                    prev.map((b) => (b.id === id ? { ...b, text: newText } : b))
+                  );
                 }}
                 onRemove={(id) => {
                   setTextBoxes((prev) => prev.filter((b) => b.id !== id));
@@ -510,14 +523,19 @@ const MemeCreator: React.FC = () => {
                       b.id === id
                         ? {
                             ...b,
-                            fontSize: Math.max(12, b.fontSize + (increase ? 2 : -2)),
+                            fontSize: Math.max(
+                              12,
+                              b.fontSize + (increase ? 2 : -2)
+                            ),
                           }
                         : b
                     )
                   );
                 }}
                 onColorChange={(id, color) => {
-                  setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, color } : b)));
+                  setTextBoxes((prev) =>
+                    prev.map((b) => (b.id === id ? { ...b, color } : b))
+                  );
                 }}
               />
             ))}
@@ -530,24 +548,29 @@ const MemeCreator: React.FC = () => {
   const Stage3 = () => (
     <div className="flex flex-col items-center w-full">
       <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
-        {finalMeme && <img src={finalMeme} alt="Generated Meme" className="w-full h-full object-cover" />}
+        {finalMeme && (
+          <img
+            src={finalMeme}
+            alt="Generated Meme"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
-      <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
+      <div className="flex sm:flex-row w-full gap-4 px-4">
         <button
           onClick={() => {
             setStage(2);
             setFinalMeme(null);
           }}
-          className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+          className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
                    transition-colors flex items-center justify-center gap-2 shadow-lg"
         >
           <RefreshCcw className="w-5 h-5" />
-          <span>Edit Again</span>
         </button>
         <a
           href={finalMeme || "#"}
           download="meme.png"
-          className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+          className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
                    transition-colors flex items-center justify-center gap-2 shadow-lg"
         >
           Download Meme
@@ -567,11 +590,10 @@ const MemeCreator: React.FC = () => {
 
   useEffect(() => {
     const setupapi = async () => {
-      
       const api = await getTrueNetworkInstance();
-      
+
       setTrueApi(api);
-      
+
       const sdk: Sdk<RpcContext> = await create({
         provider: "wss://bsr.zeitgeist.pm",
         storage: createStorage(
@@ -580,10 +602,10 @@ const MemeCreator: React.FC = () => {
           })
         ),
       });
-      
+
       // const market = (await sdk.model.markets.get(818)).unwrap();
       // console.log(market);
-      
+
       setZeitGuestSdk(sdk);
     };
 

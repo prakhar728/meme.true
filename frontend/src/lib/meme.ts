@@ -12,3 +12,10 @@ export const memes = [
     { id: 11, imageUrl: "/images/meme-11.webp", title: "Meme 11" },
     { id: 12, imageUrl: "/images/meme-12.webp", title: "Meme 12" },
   ];
+
+
+ export const templates = Array.from({ length: 18 }, (_, i) => ({
+    id: i + 1,
+    src: `/images/templates/template-${i + 1}.jpg`,
+    alt: `Meme Template ${i + 1}`,
+  }));
