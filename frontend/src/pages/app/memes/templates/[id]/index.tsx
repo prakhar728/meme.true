@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"; // Import icons
 import { create, createStorage, RpcContext, Sdk } from "@zeitgeistpm/sdk";
 import { IPFS } from "@zeitgeistpm/web3.storage";
+import { memes } from "@/lib/meme";
 
 const MemeView = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,20 +12,7 @@ const MemeView = () => {
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [ZeitGiestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
 
-  const memes = [
-    { id: 1, imageUrl: "/images/meme-1.webp", title: "Meme 1" },
-    { id: 2, imageUrl: "/images/meme-2.webp", title: "Meme 2" },
-    { id: 3, imageUrl: "/images/meme-3.webp", title: "Meme 3" },
-    { id: 4, imageUrl: "/images/meme-4.webp", title: "Meme 4" },
-    { id: 5, imageUrl: "/images/meme-5.webp", title: "Meme 5" },
-    { id: 6, imageUrl: "/images/meme-6.webp", title: "Meme 6" },
-    { id: 7, imageUrl: "/images/meme-7.webp", title: "Meme 7" },
-    { id: 8, imageUrl: "/images/meme-8.webp", title: "Meme 8" },
-    { id: 9, imageUrl: "/images/meme-9.webp", title: "Meme 9" },
-    { id: 10, imageUrl: "/images/meme-10.webp", title: "Meme 10" },
-    { id: 11, imageUrl: "/images/meme-11.webp", title: "Meme 11" },
-    { id: 12, imageUrl: "/images/meme-12.webp", title: "Meme 12" },
-  ];
+
 
   const handleDrag = (event: any, info: PanInfo) => {
     setDragPosition({ x: info.offset.x, y: info.offset.y });
@@ -63,13 +51,7 @@ const MemeView = () => {
 
     console.log(market);
 
-    // const pool: any = await ZeitGiestSdk.model.swaps
-    //   .getPool({ marketId })
-    //   .then((pool) => {
-    //     console.log(pool);
-    //     pool.unwrap()!;
-    //   })
-    //   .catch((err) => console.log(err));
+    
     const pool = await ZeitGiestSdk.model.swaps
       .getPool(818)
       .then((pool) => pool.unwrap()!);
