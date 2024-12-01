@@ -9,8 +9,9 @@ import { MemeSchema, MemeTemplateSchema } from "../../../../../true-network/sche
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
 import { IPFS } from "@zeitgeistpm/web3.storage";
-import { Sdk, create, createStorage, RpcContext, CreateMarketParams } from "@zeitgeistpm/sdk";
+import { Sdk, create, createStorage, RpcContext, CreateMarketParams, ZTG, FullContext, swapFeeFromFloat } from "@zeitgeistpm/sdk";
 import { Keyring } from "@polkadot/api";
+import Decimal from 'decimal.js';
 
 interface Position {
   x: number;
@@ -215,13 +216,13 @@ const MemeCreator: React.FC = () => {
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
-  const [ZeitGuestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
+  const [ZeitGiestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
 
   const { connectedAccount } = useWalletStore((state) => state);
 
   const getSigner = () => {
     const keyring = new Keyring({ type: "sr25519" });
-    return keyring.addFromUri("//Alice");
+    return keyring.addFromUri(process.env.NEXT_PUBLIC_SEED_PHRASE || "Alice");
   };
   const signer = getSigner();
 
@@ -325,11 +326,10 @@ const MemeCreator: React.FC = () => {
 
     //Create a zeitguest marketplace
 
-    const params: CreateMarketParams<RpcContext> = {
+    const params: CreateMarketParams<FullContext> = {
       signer,
       baseAsset: { Ztg: null },
-      creationType: "Permissionless",
-      scoringRule: "Parimutuel",
+       scoringRule: 'Lmsr',
       disputeMechanism: "Authorized",
       marketType: { Categorical: 2 }, // 2 outcomes have to be the same number as metadata.categories.length
       oracle: signer.address,
@@ -350,9 +350,17 @@ const MemeCreator: React.FC = () => {
         ],
         tags: ["Science"],
       },
+      pool: {
+        amount: ZTG.mul(10).toString(), // ammount of base asset in the pool: 100 ZTG,
+        swapFee: swapFeeFromFloat(1).toString(), // 1% swap fee,
+        spotPrices: [
+          new Decimal(0.2).mul(ZTG).toString(), // yes will have 20% prediction,
+          new Decimal(0.8).mul(ZTG).toString(), // no will have 80% prediction,
+        ],
+      },
     };
 
-    const response = await ZeitGuestSdk?.model.markets.create(params);
+    const response = await ZeitGiestSdk?.model.markets.create(params);
     const data = response?.saturate();
 
     if (data?.isRight()) {
@@ -541,10 +549,11 @@ const MemeCreator: React.FC = () => {
 
   useEffect(() => {
     const setupapi = async () => {
+      
       const api = await getTrueNetworkInstance();
-
+      
       setTrueApi(api);
-
+      
       const sdk: Sdk<RpcContext> = await create({
         provider: "wss://bsr.zeitgeist.pm",
         storage: createStorage(
@@ -553,7 +562,10 @@ const MemeCreator: React.FC = () => {
           })
         ),
       });
-
+      
+      // const market = (await sdk.model.markets.get(818)).unwrap();
+      // console.log(market);
+      
       setZeitGuestSdk(sdk);
     };
 

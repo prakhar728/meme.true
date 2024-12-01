@@ -139,7 +139,7 @@ const HeroSection = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-black hover:bg-primary/90 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                className="bg-black hover:bg-black/40 hover:text-black text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
               >
                 Start Creating
                 <ChevronRight className="ml-2 w-5 h-5" />
@@ -147,7 +147,7 @@ const HeroSection = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-slate-600 hover:bg-secondary/90 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                className="bg-slate-600 hover:bg-slate-300 hover:text-slate-900 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
               >
                 Explore Memes
               </motion.button>
