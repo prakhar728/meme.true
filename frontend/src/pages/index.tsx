@@ -103,6 +103,9 @@ const FloatingMemes = () => {
 };
 
 const HeroSection = () => {
+
+  const router = useRouter()
+
   return (
     <section className="min-h-screen flex items-center relative overflow-hidden px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background" />
@@ -140,6 +143,7 @@ const HeroSection = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-black hover:bg-black/40 hover:text-black text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                onClick={() => router.push('/app/memes/create')}
               >
                 Start Creating
                 <ChevronRight className="ml-2 w-5 h-5" />
@@ -148,6 +152,7 @@ const HeroSection = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-slate-600 hover:bg-slate-300 hover:text-slate-900 text-white px-6 py-3 rounded-lg text-lg font-medium transition-colors flex items-center"
+                onClick={() => router.push('/app/memes')}
               >
                 Explore Memes
               </motion.button>
