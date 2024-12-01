@@ -1,17 +1,28 @@
-'use client'
+"use client";
 
-import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { config } from "@/config/wagmiConfig"
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { config } from "@/config/wagmiConfig";
+import { MetaMaskUIProvider } from "@metamask/sdk-react-ui";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <MetaMaskUIProvider
+          sdkOptions={{
+            dappMetadata: {
+              name: "Example React UI Dapp",
+            },
+            infuraAPIKey: process.env.INFURA_API_KEY,
+            // Other options.
+          }}
+        >
+          {children}
+        </MetaMaskUIProvider>
       </QueryClientProvider>
     </WagmiProvider>
-  )
+  );
 }
