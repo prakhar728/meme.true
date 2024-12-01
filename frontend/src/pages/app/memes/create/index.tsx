@@ -556,25 +556,50 @@ const MemeCreator: React.FC = () => {
           />
         )}
       </div>
-      <div className="flex sm:flex-row w-full gap-4 px-4">
+      <div className="flex flex-col w-full gap-4 px-4">
+        <div className="flex sm:flex-row w-full gap-4">
+          <button
+            onClick={() => {
+              setStage(2);
+              setFinalMeme(null);
+            }}
+            className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+                     transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            <RefreshCcw className="w-5 h-5" />
+          </button>
+
+          <a
+            href={finalMeme || "#"}
+            download="meme.png"
+            className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+                     transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            Download Meme
+          </a>
+        </div>
+
         <button
           onClick={() => {
-            setStage(2);
-            setFinalMeme(null);
+            // Create the Twitter share URL with the meme
+            const text = "Check out this meme I created!";
+            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              text
+            )}`;
+            window.open(shareUrl, "_blank");
           }}
-          className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
-                   transition-colors flex items-center justify-center gap-2 shadow-lg"
+          className="w-full sm:w-auto px-6 py-4 bg-black rounded-lg hover:bg-gray-900 
+                   transition-colors flex items-center justify-center gap-2 shadow-lg mx-auto"
         >
-          <RefreshCcw className="w-5 h-5" />
+          <svg
+            viewBox="0 0 24 24"
+            className="w-5 h-5 fill-current"
+            aria-hidden="true"
+          >
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          <span>Share on X</span>
         </button>
-        <a
-          href={finalMeme || "#"}
-          download="meme.png"
-          className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
-                   transition-colors flex items-center justify-center gap-2 shadow-lg"
-        >
-          Download Meme
-        </a>
       </div>
     </div>
   );
