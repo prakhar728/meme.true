@@ -16,7 +16,9 @@ import { TrueApi } from "@truenetworkio/sdk";
 import { MemeSchema, MemeTemplateSchema } from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
-import { Sdk, FullContext, create, mainnet, ZTG, batterystation } from "@zeitgeistpm/sdk";
+import Decimal from 'decimal.js'
+import { IPFS } from '@zeitgeistpm/web3.storage'
+import { Sdk, create, ZTG, createStorage, RpcContext, CreateMarketParams, swapFeeFromFloat } from "@zeitgeistpm/sdk";
 
 interface Position {
   x: number;
@@ -239,7 +241,7 @@ const MemeCreator: React.FC = () => {
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
-  const [ZeitGuestSdk, setZeitGuestSdk] = useState<Sdk<FullContext>>();
+  const [ZeitGuestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
 
   const { connectedAccount, connectedWallet } = useWalletStore(
     (state) => state
@@ -353,52 +355,52 @@ const MemeCreator: React.FC = () => {
     });
 
     //Create a zeitguest marketplace
-
-    // const params = {
-    //   baseAsset: { Ztg: null },
-    //   signer,
-    //   disputeMechanism: "Authorized",
-    //   marketType: { Categorical: 2 },
-    //   oracle: signer.address,
-    //   period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 6] },
-    //   deadlines: {
-    //     disputeDuration: 5000,
-    //     gracePeriod: 200,
-    //     oracleDuration: 500,
-    //   },
-    //   metadata: {
-    //     __meta: "markets",
-    //     question: "Will this meme take off? ",
-    //     description: "Testing the sdk.",
-    //     slug: "standalone-market-example",
-    //     categories: [
-    //       { name: "yes", ticker: "Y" },
-    //       { name: "no", ticker: "N" },
-    //     ],
-    //     tags: ["meme-template"],
-    //   },
-    //   pool: {
-    //     amount: ZTG.mul(300).toString(),
-    //     swapFee: "1",
-    //     weights: ["50000000000", "50000000000"],
-    //   },
-    // };
-
-    // const response = await ZeitGuestSdk?.model.markets.create(params);
-    // const data = response?.saturate();
     
-    // if (data?.isRight()) {
-    //   console.log(data);
-      
-    //   const { market, pool } = data.unwrap();
-    //   console.log(`Market created with id: ${market.marketId}`);
-    //   console.log(`Pool created with id: ${pool.poolId}`);
-    // } else {
-    //   console.log(`Market creation had error: ${data.unwrapLeft().message}`);
-    // }
+    const params: CreateMarketParams<RpcContext> = {
+      signer,
+      baseAsset: { Ztg: null },
+      scoringRule: 'Lmsr',
+      disputeMechanism: 'Authorized',
+      marketType: { Categorical: 2 }, // 2 outcomes have to be the same number as metadata.categories.length
+      oracle: signer.address,
+      period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 24 * 1000 * 2] },
+      deadlines: {
+        disputeDuration: 5000,
+        gracePeriod: 200,
+        oracleDuration: 500,
+      },
+      metadata: {
+        __meta: 'markets',
+        question: 'Will the example work?',
+        description: 'Testing the sdk.',
+        slug: 'standalone-market-example',
+        categories: [
+          { name: 'yes', ticker: 'Y' },
+          { name: 'no', ticker: 'N' },
+        ],
+        tags: ['Science'],
+      },
+      pool: {
+        amount: ZTG.mul(100).toString(), // ammount of base asset in the pool: 100 ZTG,
+        swapFee: swapFeeFromFloat(1).toString(), // 1% swap fee,
+        spotPrices: [
+          new Decimal(0.2).mul(ZTG).toString(), // yes will have 20% prediction,
+          new Decimal(0.8).mul(ZTG).toString(), // no will have 80% prediction,
+        ],
+      },
+    }
 
-    // console.log(`Market created with id: ${market.marketId}`);
-    // console.log(`Pool created with id: ${pool.poolId}`);
+    const response = await ZeitGuestSdk?.model.markets.create(params);
+    const data = response?.saturate();
+    
+    if (data?.isRight()) {
+      console.log(data);
+      
+      const { market } = data.unwrap();
+      console.log(`Market created with id: ${market.marketId}`);
+    } else {
+      console.log(`Market creation had error: ${data?.unwrapLeft().message}`);
+    }
 
     // Make attestation of marketplace with zeitguest
 
@@ -608,7 +610,14 @@ const MemeCreator: React.FC = () => {
 
       setTrueApi(api);
 
-      const sdk: Sdk<FullContext> = await create(batterystation());
+      const sdk: Sdk<RpcContext> = await create({
+        provider: "wss://bsr.zeitgeist.pm",
+        storage: createStorage(
+          IPFS.storage({
+            node: { url: "http://localhost:5001" },
+          })
+        ),
+      });;
 
       setZeitGuestSdk(sdk);
     };
