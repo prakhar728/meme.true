@@ -71,27 +71,27 @@ export default function Layout({ children }: LayoutProps) {
     return null;
   }
 
-  if (!isMobile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md text-center space-y-4">
-          <FloatingMemes />
-          <h1 className="text-2xl font-bold text-foreground">Mobile Only App</h1>
-          <p className="text-muted-foreground">
-            This app is designed for mobile devices only. Please open it on your phone or tablet.
-          </p>
-          <div className="w-48 h-48 relative mx-auto border border-border rounded-lg overflow-hidden">
-            <Image 
-              src="/images/Website.png" 
-              alt="QR Code"
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (!isMobile) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+  //       <div className="max-w-md text-center space-y-4">
+  //         <FloatingMemes />
+  //         <h1 className="text-2xl font-bold text-foreground">Mobile Only App</h1>
+  //         <p className="text-muted-foreground">
+  //           This app is designed for mobile devices only. Please open it on your phone or tablet.
+  //         </p>
+  //         <div className="w-48 h-48 relative mx-auto border border-border rounded-lg overflow-hidden">
+  //           <Image 
+  //             src="/images/Website.png" 
+  //             alt="QR Code"
+  //             fill
+  //             className="object-cover"
+  //           />
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>

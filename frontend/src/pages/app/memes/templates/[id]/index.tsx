@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import Layout from "@/components/Layout";
 import { ThumbsUp, ThumbsDown, X } from "lucide-react"; // Import icons
+import { create, createStorage, RpcContext, Sdk } from "@zeitgeistpm/sdk";
+import { IPFS } from "@zeitgeistpm/web3.storage";
 
 const MemeView = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [ZeitGiestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
 
   const memes = [
     { id: 1, imageUrl: "/images/meme-1.webp", title: "Meme 1" },
@@ -48,7 +51,31 @@ const MemeView = () => {
     }
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
+    if (!ZeitGiestSdk) return;
+
+    // Make a bet towards Zeitgeist -> and see some confirmation
+    const marketId = 818;
+
+    const market: any = await ZeitGiestSdk.model.markets
+      .get({ marketId })
+      .then((market) => market.unwrap()!);
+
+    console.log(market);
+
+    // const pool: any = await ZeitGiestSdk.model.swaps
+    //   .getPool({ marketId })
+    //   .then((pool) => {
+    //     console.log(pool);
+    //     pool.unwrap()!;
+    //   })
+    //   .catch((err) => console.log(err));
+    const pool = await ZeitGiestSdk.model.swaps
+      .getPool(818)
+      .then((pool) => pool.unwrap()!);
+
+    console.log(pool);
+
     setDirection(1);
     nextMeme();
   };
@@ -84,6 +111,23 @@ const MemeView = () => {
       opacity: 0,
     }),
   };
+
+  useEffect(() => {
+    const setupapi = async () => {
+      const sdk: Sdk<RpcContext> = await create({
+        provider: "wss://bsr.zeitgeist.pm",
+        storage: createStorage(
+          IPFS.storage({
+            node: { url: "http://localhost:5001" },
+          })
+        ),
+      });
+
+      setZeitGuestSdk(sdk);
+    };
+
+    setupapi();
+  }, []);
 
   const getLikeOpacity = () => Math.min(Math.max(dragPosition.x / 100, 0), 1);
   const getDislikeOpacity = () =>
@@ -127,24 +171,6 @@ const MemeView = () => {
               </div>
             </motion.div>
           </div>
-
-          {/* Initial Hint Overlay */}
-          {/* <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="text-white/50 text-center space-y-4">
-            <div className="flex items-center justify-center gap-2">
-              <ThumbsUp className="w-6 h-6" />
-              <span>Swipe right for Funny</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <ThumbsDown className="w-6 h-6" />
-              <span>Swipe left for Lame</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <X className="w-6 h-6" />
-              <span>Swipe down to Ignore</span>
-            </div>
-          </div>
-        </div> */}
 
           <AnimatePresence initial={false} custom={direction}>
             <motion.div

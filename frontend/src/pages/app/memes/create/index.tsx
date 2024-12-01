@@ -324,7 +324,7 @@ const MemeCreator: React.FC = () => {
       poolId: 0,
     });
 
-    //Create a zeitguest marketplace
+    //Create a zeitgiest marketplace
 
     const params: CreateMarketParams<FullContext> = {
       signer,
@@ -363,9 +363,28 @@ const MemeCreator: React.FC = () => {
     const response = await ZeitGiestSdk?.model.markets.create(params);
     const data = response?.saturate();
 
+    
+    
     if (data?.isRight()) {
       const { market } = data.unwrap();
       console.log(`Market created with id: ${market.marketId}`);
+
+      const poolCreationResponse = await market.deploySwapPoolAndAdditionalLiquidity({
+        signer,
+        amount: ZTG.mul(300).toString(),
+        swapFee: swapFeeFromFloat(1).toString(),
+        weights: evenWeights(2),
+      });
+      
+      /**
+       * Extracts the pool from events in the block.
+       */
+      const pool = poolCreationResponse.saturate().unwrap();
+      
+      /**
+       * Print the results.
+       */
+      console.log(`Pool created with id: ${pool.poolId}`);
     } else {
       console.log(`Market creation had error: ${data?.unwrapLeft().message}`);
     }
@@ -410,18 +429,17 @@ const MemeCreator: React.FC = () => {
           <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
             <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
           </div>
-          <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
+          <div className="flex sm:flex-row w-full gap-4 px-4">
             <button
               onClick={retakePhoto}
-              className="w-full sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
+              className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
                        transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
               <RefreshCcw className="w-5 h-5" />
-              <span>Retake</span>
             </button>
             <button
               onClick={generateTemplate}
-              className="w-full sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
+              className="w-9/12 sm:w-auto px-6 py-4 bg-blue-500 rounded-lg hover:bg-blue-600 
                        transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
               <Type className="w-5 h-5" />
