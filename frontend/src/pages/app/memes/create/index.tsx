@@ -1,14 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Camera,
-  RefreshCcw,
-  Type,
-  Plus,
-  Trash2,
-  Loader,
-  Minus,
-} from "lucide-react";
+import { Camera, RefreshCcw, Type, Plus, Trash2, Loader, Minus } from "lucide-react";
 import Webcam from "react-webcam";
 import Layout from "@/components/Layout";
 import { getTrueNetworkInstance } from "../../../../../true-network/true.config";
@@ -16,9 +8,9 @@ import { TrueApi } from "@truenetworkio/sdk";
 import { MemeSchema, MemeTemplateSchema } from "../../../../../true-network/schema";
 import { useWalletStore } from "@/providers/walletStoreProvider";
 import { pinata } from "@/lib/utils";
-import Decimal from 'decimal.js'
-import { IPFS } from '@zeitgeistpm/web3.storage'
-import { Sdk, create, ZTG, createStorage, RpcContext, CreateMarketParams, swapFeeFromFloat } from "@zeitgeistpm/sdk";
+import { IPFS } from "@zeitgeistpm/web3.storage";
+import { Sdk, create, createStorage, RpcContext, CreateMarketParams } from "@zeitgeistpm/sdk";
+import { Keyring } from "@polkadot/api";
 
 interface Position {
   x: number;
@@ -73,9 +65,7 @@ const TextControl = ({
         >
           <Minus className="w-4 h-4" />
         </button>
-        <span className="text-sm text-gray-300">
-          Font Size: {box.fontSize}px
-        </span>
+        <span className="text-sm text-gray-300">Font Size: {box.fontSize}px</span>
         <button
           onClick={() => onFontSizeChange(box.id, true)}
           className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -93,24 +83,14 @@ const TextControl = ({
   );
 };
 
-const DraggableText = ({
-  box,
-  onMove,
-}: {
-  box: TextBox;
-  onMove: (id: string, position: Position) => void;
-}) => {
+const DraggableText = ({ box, onMove }: { box: TextBox; onMove: (id: string, position: Position) => void }) => {
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     // Prevent default behavior to stop pull-to-refresh
     e.preventDefault();
 
     const isTouch = "touches" in e;
-    const startX = isTouch
-      ? e.touches[0].clientX
-      : (e as React.MouseEvent).clientX;
-    const startY = isTouch
-      ? e.touches[0].clientY
-      : (e as React.MouseEvent).clientY;
+    const startX = isTouch ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const startY = isTouch ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
 
     const element = isTouch
       ? (e.target as HTMLElement).getBoundingClientRect()
@@ -123,14 +103,8 @@ const DraggableText = ({
       // Prevent default to stop unwanted behaviors
       event.preventDefault();
 
-      const moveX =
-        "touches" in event
-          ? event.touches[0].clientX
-          : (event as MouseEvent).clientX;
-      const moveY =
-        "touches" in event
-          ? event.touches[0].clientY
-          : (event as MouseEvent).clientY;
+      const moveX = "touches" in event ? event.touches[0].clientX : (event as MouseEvent).clientX;
+      const moveY = "touches" in event ? event.touches[0].clientY : (event as MouseEvent).clientY;
 
       // Get the container boundaries
       const container = document.querySelector(".image-container");
@@ -243,11 +217,13 @@ const MemeCreator: React.FC = () => {
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const [ZeitGuestSdk, setZeitGuestSdk] = useState<Sdk<RpcContext>>();
 
-  const { connectedAccount, connectedWallet } = useWalletStore(
-    (state) => state
-  );
+  const { connectedAccount } = useWalletStore((state) => state);
 
-  const signer = connectedWallet?.signer as any;
+  const getSigner = () => {
+    const keyring = new Keyring({ type: "sr25519" });
+    return keyring.addFromUri("//Alice");
+  };
+  const signer = getSigner();
 
   const videoConstraints = {
     width: 1920,
@@ -298,12 +274,7 @@ const MemeCreator: React.FC = () => {
       const container = imageContainerRef.current;
       const { width, height } = container.getBoundingClientRect();
 
-      const memeDataUrl = await generateMemeCanvas(
-        capturedImage,
-        textBoxes,
-        width,
-        height
-      );
+      const memeDataUrl = await generateMemeCanvas(capturedImage, textBoxes, width, height);
 
       if (!trueApi || !connectedAccount?.address || !capturedImage) {
         setIsLoading(false);
@@ -341,10 +312,8 @@ const MemeCreator: React.FC = () => {
       return;
     }
 
-    const upload = await pinata.upload.base64(
-      capturedImage.replace(/^data:image\/png;base64,/, "")
-    );
-    
+    const upload = await pinata.upload.base64(capturedImage.replace(/^data:image\/png;base64,/, ""));
+
     const cid = upload.cid;
 
     await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
@@ -355,12 +324,13 @@ const MemeCreator: React.FC = () => {
     });
 
     //Create a zeitguest marketplace
-    
+
     const params: CreateMarketParams<RpcContext> = {
       signer,
       baseAsset: { Ztg: null },
-      scoringRule: 'Lmsr',
-      disputeMechanism: 'Authorized',
+      creationType: "Permissionless",
+      scoringRule: "Parimutuel",
+      disputeMechanism: "Authorized",
       marketType: { Categorical: 2 }, // 2 outcomes have to be the same number as metadata.categories.length
       oracle: signer.address,
       period: { Timestamp: [Date.now(), Date.now() + 60 * 60 * 24 * 1000 * 2] },
@@ -370,32 +340,22 @@ const MemeCreator: React.FC = () => {
         oracleDuration: 500,
       },
       metadata: {
-        __meta: 'markets',
-        question: 'Will the example work?',
-        description: 'Testing the sdk.',
-        slug: 'standalone-market-example',
+        __meta: "markets",
+        question: "Will the example work?",
+        description: "Testing the sdk.",
+        slug: "standalone-market-example",
         categories: [
-          { name: 'yes', ticker: 'Y' },
-          { name: 'no', ticker: 'N' },
+          { name: "yes", ticker: "Y" },
+          { name: "no", ticker: "N" },
         ],
-        tags: ['Science'],
+        tags: ["Science"],
       },
-      pool: {
-        amount: ZTG.mul(100).toString(), // ammount of base asset in the pool: 100 ZTG,
-        swapFee: swapFeeFromFloat(1).toString(), // 1% swap fee,
-        spotPrices: [
-          new Decimal(0.2).mul(ZTG).toString(), // yes will have 20% prediction,
-          new Decimal(0.8).mul(ZTG).toString(), // no will have 80% prediction,
-        ],
-      },
-    }
+    };
 
     const response = await ZeitGuestSdk?.model.markets.create(params);
     const data = response?.saturate();
-    
+
     if (data?.isRight()) {
-      console.log(data);
-      
       const { market } = data.unwrap();
       console.log(`Market created with id: ${market.marketId}`);
     } else {
@@ -440,11 +400,7 @@ const MemeCreator: React.FC = () => {
       ) : (
         <>
           <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
-            <img
-              src={capturedImage}
-              alt="Captured"
-              className="w-full h-full object-cover"
-            />
+            <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
             <button
@@ -478,11 +434,7 @@ const MemeCreator: React.FC = () => {
             className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4 image-container"
             onTouchMove={(e) => e.preventDefault()} // Prevent pull-to-refresh
           >
-            <img
-              src={capturedImage}
-              alt="Template"
-              className="w-full h-full object-cover"
-            />
+            <img src={capturedImage} alt="Template" className="w-full h-full object-cover" />
           </div>
         )}
         {textBoxes.map((box) => (
@@ -490,11 +442,7 @@ const MemeCreator: React.FC = () => {
             key={box.id}
             box={box}
             onMove={(id, newPosition) => {
-              setTextBoxes((prev) =>
-                prev.map((b) =>
-                  b.id === id ? { ...b, position: newPosition } : b
-                )
-              );
+              setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, position: newPosition } : b)));
             }}
           />
         ))}
@@ -525,9 +473,7 @@ const MemeCreator: React.FC = () => {
                 key={box.id}
                 box={box}
                 onTextChange={(id, newText) => {
-                  setTextBoxes((prev) =>
-                    prev.map((b) => (b.id === id ? { ...b, text: newText } : b))
-                  );
+                  setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, text: newText } : b)));
                 }}
                 onRemove={(id) => {
                   setTextBoxes((prev) => prev.filter((b) => b.id !== id));
@@ -538,19 +484,14 @@ const MemeCreator: React.FC = () => {
                       b.id === id
                         ? {
                             ...b,
-                            fontSize: Math.max(
-                              12,
-                              b.fontSize + (increase ? 2 : -2)
-                            ),
+                            fontSize: Math.max(12, b.fontSize + (increase ? 2 : -2)),
                           }
                         : b
                     )
                   );
                 }}
                 onColorChange={(id, color) => {
-                  setTextBoxes((prev) =>
-                    prev.map((b) => (b.id === id ? { ...b, color } : b))
-                  );
+                  setTextBoxes((prev) => prev.map((b) => (b.id === id ? { ...b, color } : b)));
                 }}
               />
             ))}
@@ -563,13 +504,7 @@ const MemeCreator: React.FC = () => {
   const Stage3 = () => (
     <div className="flex flex-col items-center w-full">
       <div className="relative w-full h-[70vh] bg-gray-900 rounded-lg overflow-hidden mb-4">
-        {finalMeme && (
-          <img
-            src={finalMeme}
-            alt="Generated Meme"
-            className="w-full h-full object-cover"
-          />
-        )}
+        {finalMeme && <img src={finalMeme} alt="Generated Meme" className="w-full h-full object-cover" />}
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-4 px-4">
         <button
@@ -617,7 +552,7 @@ const MemeCreator: React.FC = () => {
             node: { url: "http://localhost:5001" },
           })
         ),
-      });;
+      });
 
       setZeitGuestSdk(sdk);
     };
