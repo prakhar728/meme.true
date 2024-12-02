@@ -439,7 +439,7 @@ const MemeCreator: React.FC = () => {
 
                 {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium">
+                  <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium text-black">
                     Use Template
                   </div>
                 </div>
