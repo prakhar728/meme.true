@@ -30,9 +30,8 @@ app.get("/api/health", async (req, res) => {
 // Create - POST /api/memes
 app.post("/api/memes", async (req, res) => {
   try {
-    console.log(req.body);
-
     const meme = new Meme(req.body);
+    
     await meme.save();
     res.status(201).json(meme);
   } catch (error) {

@@ -1,13 +1,13 @@
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React from "react";
+import { Plus } from "lucide-react";
 import { TextBox } from "./types";
-import { DraggableText } from './DraggableText';
-import { TextControl } from './TextControl';
-import { generateMemeCanvas } from './helper';
-import { pinata } from "@/lib/utils";
-import { MemeSchema } from '@/true-network/schema';
-import { TrueApi } from '@truenetworkio/sdk';
-import { useAccount } from 'wagmi';
+import { DraggableText } from "./DraggableText";
+import { TextControl } from "./TextControl";
+import { generateMemeCanvas } from "./helper";
+import { createMeme, pinata } from "@/lib/utils";
+import { MemeSchema } from "@/true-network/schema";
+import { TrueApi } from "@truenetworkio/sdk";
+import { useAccount } from "wagmi";
 
 interface Stage2Props {
   capturedImage: string | null;
@@ -18,7 +18,7 @@ interface Stage2Props {
   setStage: (stage: number) => void;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
-  trueApi?: TrueApi
+  trueApi?: TrueApi;
 }
 
 const Stage2: React.FC<Stage2Props> = ({
@@ -30,7 +30,7 @@ const Stage2: React.FC<Stage2Props> = ({
   setStage,
   setIsLoading,
   setLoadingMessage,
-  trueApi
+  trueApi,
 }) => {
   const addTextBox = () => {
     const newBox: TextBox = {
@@ -40,13 +40,10 @@ const Stage2: React.FC<Stage2Props> = ({
       fontSize: 24,
       color: "#FFFFFF",
     };
-    setTextBoxes(prev => [...prev, newBox]);
+    setTextBoxes((prev) => [...prev, newBox]);
   };
 
   const account = useAccount();
-
-  console.log(account);
-  
 
   const generateMeme = async () => {
     if (!imageContainerRef.current || !capturedImage) return;
@@ -68,18 +65,24 @@ const Stage2: React.FC<Stage2Props> = ({
       try {
         // Upload to IPFS via Pinata
         const upload = await pinata.upload.base64(
-          memeDataUrl.split(',')[1] // Remove the data URL prefix
+          memeDataUrl.split(",")[1] // Remove the data URL prefix
         );
 
         if (!trueApi) {
           return;
         }
 
+        await createMeme({
+          cid: upload.cid,
+          isTemplate: false,
+          memeTemplate: "0",
+        });
+
         await MemeSchema.attest(trueApi, account.address as string, {
-            cid: upload.cid,
-            isTemplate: false,
-            memeTemplate: 1,
-          });
+          cid: upload.cid,
+          isTemplate: false,
+          memeTemplate: 1,
+        });
         // You could store the CID if needed
         console.log("Meme uploaded to IPFS:", upload.cid);
       } catch (error) {
