@@ -8,8 +8,8 @@ import {
 } from "wagmi";
 import { Template } from "./types";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
-import { pinata } from "@/lib/utils";
 import { TrueApi } from "@truenetworkio/sdk";
+import { uploadImage } from "@/lib/utils";
 
 interface Stage1Props {
   setCapturedImage: (image: string | null) => void;
@@ -155,12 +155,12 @@ const Stage1: React.FC<Stage1Props> = ({
         setIsUploadingToIpfs(true);
 
         try {
-          const upload = await pinata.upload.base64(
-            base64String.replace(/^data:image\/\w+;base64,/, "")
-          );
-
+          const res = await uploadImage(base64String.replace(/^data:image\/\w+;base64,/, ""));
+          
+          console.log(res);
+          
           // Store the CID
-          setIpfsCid(upload.cid);
+          setIpfsCid(res);
           setIsUploadingToIpfs(false);
         } catch (error) {
           console.error("Error uploading to IPFS:", error);

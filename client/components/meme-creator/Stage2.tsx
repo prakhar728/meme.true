@@ -4,7 +4,7 @@ import { TextBox } from "./types";
 import { DraggableText } from "./DraggableText";
 import { TextControl } from "./TextControl";
 import { generateMemeCanvas } from "./helper";
-import { createMeme, pinata } from "@/lib/utils";
+import { createMeme, uploadImage } from "@/lib/utils";
 import { MemeSchema } from "@/true-network/schema";
 import { TrueApi } from "@truenetworkio/sdk";
 import { useAccount } from "wagmi";
@@ -65,28 +65,27 @@ const Stage2: React.FC<Stage2Props> = ({
       );
 
       try {
-        // Upload to IPFS via Pinata
-        const upload = await pinata.upload.base64(
-          memeDataUrl.split(",")[1] // Remove the data URL prefix
-        );
+        const res = await uploadImage(memeDataUrl.split(",")[1]);
+
+        console.log(res);
 
         if (!trueApi) {
           return;
         }
 
         await createMeme({
-          cid: upload.cid,
+          cid: res,
           isTemplate: false,
           memeTemplate: memeTemplate.toString(),
         });
 
         await MemeSchema.attest(trueApi, account.address as string, {
-          cid: upload.cid,
+          cid: res,
           isTemplate: false,
           memeTemplate: memeTemplate,
         });
-        
-        console.log("Meme uploaded to IPFS:", upload.cid);
+
+        console.log("Meme uploaded to IPFS:", res);
       } catch (error) {
         console.error("Error uploading to IPFS:", error);
       }
@@ -132,7 +131,7 @@ const Stage2: React.FC<Stage2Props> = ({
         ))}
       </div>
       <div className="w-full space-y-4">
-        <div className="flex sm:flex-row w-full gap-4 px-4">
+        <div className="flex sm:flex-row w-full gap-4 px-4 items-center justify-center">
           <button
             onClick={addTextBox}
             className="w-3/12 sm:w-auto px-6 py-4 bg-gray-700 rounded-lg hover:bg-gray-600 
