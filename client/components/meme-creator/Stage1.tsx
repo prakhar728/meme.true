@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
+import {
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useReadContract,
+} from "wagmi";
 import { Template } from "./types";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
 import { pinata } from "@/lib/utils";
@@ -14,7 +18,8 @@ interface Stage1Props {
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   templates: Template[];
-  trueApi?: TrueApi
+  trueApi?: TrueApi;
+  setmemeTemplate: (state: number) => void;
 }
 
 const Stage1: React.FC<Stage1Props> = ({
@@ -24,7 +29,8 @@ const Stage1: React.FC<Stage1Props> = ({
   setIsLoading,
   setLoadingMessage,
   templates,
-  trueApi
+  trueApi,
+  setmemeTemplate,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -33,14 +39,32 @@ const Stage1: React.FC<Stage1Props> = ({
   const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false);
 
   const { data: hash, writeContract, error } = useWriteContract();
+  const { isLoading: isConfirmingMarket, status: MarketCreationStatus } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+
   const {
-    isLoading: isConfirmingMarket,
-    isSuccess: isConfirmed,
-    status: MarketCreationStatus,
-  } = useWaitForTransactionReceipt({
-    hash,
+    data: marketData,
+    error: marketError,
+    isError,
+    isLoading,
+    status,
+  } = useReadContract({
+    address: DEPLOYED_CONTRACT,
+    abi: CONTRACT_ABI,
+    functionName: "getMarketCount",
+    args: [],
   });
 
+  // Debug logs
+  useEffect(() => {
+    console.log("Contract Status:", status);
+    console.log("Is Loading:", isLoading);
+    console.log("Is Error:", isError);
+    console.log("Error:", marketError);
+    console.log("Raw Data:", marketData);
+  }, [status, isLoading, isError, marketError, marketData]);
 
   // Monitor transaction hash
   useEffect(() => {
@@ -61,7 +85,9 @@ const Stage1: React.FC<Stage1Props> = ({
       setLoadingMessage("");
       setSelectedImage(null);
       // Pass both base64 and IPFS URL to the next stage
-      setCapturedImage(base64Image || (ipfsCid ? `https://ipfs.io/ipfs/${ipfsCid}` : null));
+      setCapturedImage(
+        base64Image || (ipfsCid ? `https://ipfs.io/ipfs/${ipfsCid}` : null)
+      );
       setLoadingMessage("Transaction is being confirmed...");
     }
   }, [
@@ -72,7 +98,7 @@ const Stage1: React.FC<Stage1Props> = ({
     setLoadingMessage,
     setCapturedImage,
     ipfsCid,
-    base64Image
+    base64Image,
   ]);
 
   const generateTemplate = async () => {
@@ -94,15 +120,13 @@ const Stage1: React.FC<Stage1Props> = ({
     }
 
     try {
-      console.log("Using CID for contract:", ipfsCid);
-
-      await writeContract({
+      writeContract({
         address: DEPLOYED_CONTRACT,
         abi: CONTRACT_ABI,
         functionName: "createMarket",
         args: [ipfsCid],
       });
-      
+
       console.log("Write contract call completed");
     } catch (error) {
       console.error("Error creating market:", error);
@@ -111,7 +135,9 @@ const Stage1: React.FC<Stage1Props> = ({
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -155,12 +181,12 @@ const Stage1: React.FC<Stage1Props> = ({
     // For templates, we'll use the template URL directly
     setSelectedImage(template.src);
     setBase64Image(null);
-    
+
     // Extract CID from template URL if it's an IPFS URL
-    const cid = template.src.includes('ipfs.io/ipfs/') 
-      ? template.src.split('ipfs.io/ipfs/')[1] 
+    const cid = template.src.includes("ipfs.io/ipfs/")
+      ? template.src.split("ipfs.io/ipfs/")[1]
       : null;
-    
+
     setIpfsCid(cid);
   };
 
@@ -260,7 +286,7 @@ const Stage1: React.FC<Stage1Props> = ({
                            transition-colors flex items-center gap-2 text-black"
                 disabled={isDisabled}
               >
-                {isUploadingToIpfs ? 'Uploading...' : 'Use Template'}
+                {isUploadingToIpfs ? "Uploading..." : "Use Template"}
               </button>
             </div>
           </div>

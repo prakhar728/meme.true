@@ -20,6 +20,7 @@ const MemeCreator: React.FC = () => {
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const [memeTemplate, setmemeTemplate] = useState(0);
 
   useEffect(() => {
     const setupapi = async () => {
@@ -41,11 +42,11 @@ const MemeCreator: React.FC = () => {
             setLoadingMessage={setLoadingMessage}
             templates={templates}
             trueApi={trueApi}
+            setmemeTemplate={setmemeTemplate}
           />
         );
       case 2: {
         if (!capturedImage) {
-          // Instead of directly calling setStage, we'll return null and use an effect
           useEffect(() => {
             setStage(1);
           }, []);
@@ -62,6 +63,7 @@ const MemeCreator: React.FC = () => {
             setIsLoading={setIsLoading}
             setLoadingMessage={setLoadingMessage}
             trueApi={trueApi}
+            memeTemplate={memeTemplate}
           />
         );
       }

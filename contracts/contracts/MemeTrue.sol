@@ -44,6 +44,10 @@ contract MemeTrue {
         _;
     }
 
+    function getMarketCount() external view returns (uint256) {
+        return marketCount;
+    }
+
     function createMarket(string memory metadata) external {
         uint256 endTime = block.timestamp + 6 hours;
 

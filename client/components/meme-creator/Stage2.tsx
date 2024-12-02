@@ -19,6 +19,7 @@ interface Stage2Props {
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   trueApi?: TrueApi;
+  memeTemplate: number;
 }
 
 const Stage2: React.FC<Stage2Props> = ({
@@ -31,6 +32,7 @@ const Stage2: React.FC<Stage2Props> = ({
   setIsLoading,
   setLoadingMessage,
   trueApi,
+  memeTemplate,
 }) => {
   const addTextBox = () => {
     const newBox: TextBox = {
@@ -75,15 +77,15 @@ const Stage2: React.FC<Stage2Props> = ({
         await createMeme({
           cid: upload.cid,
           isTemplate: false,
-          memeTemplate: "0",
+          memeTemplate: memeTemplate.toString(),
         });
 
         await MemeSchema.attest(trueApi, account.address as string, {
           cid: upload.cid,
           isTemplate: false,
-          memeTemplate: 1,
+          memeTemplate: memeTemplate,
         });
-        // You could store the CID if needed
+        
         console.log("Meme uploaded to IPFS:", upload.cid);
       } catch (error) {
         console.error("Error uploading to IPFS:", error);
