@@ -14,8 +14,8 @@ export const memes = [
   ];
 
 
- export const templates = Array.from({ length: 18 }, (_, i) => ({
-    id: i + 1,
+ export const templates= Array.from({ length: 18 }, (_, i) => ({
+    id: `${i + 1}`,
     src: `/template-${i + 1}.jpg`,
     alt: `Meme Template ${i + 1}`,
   }));
