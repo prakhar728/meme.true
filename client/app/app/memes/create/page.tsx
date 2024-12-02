@@ -13,6 +13,7 @@ import {
 import { pinata } from "@/lib/utils";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
 import { templates } from "@/lib/memes";
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 
 interface Position {
   x: number;
@@ -234,7 +235,13 @@ const MemeCreator: React.FC = () => {
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
 //   const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const { data: hash, writeContract, error } = useWriteContract();
+  const { isLoading: isConfirmingMarket, isSuccess: isConfirmed } =
+  useWaitForTransactionReceipt({
+    hash,
+  })
 
+  
   const addTextBox = () => {
     const newBox: TextBox = {
       id: `text-${Date.now()}`,
@@ -293,17 +300,11 @@ const MemeCreator: React.FC = () => {
     setIsLoading(true);
     setLoadingMessage("Selecting your meme...");
 
-    // if (!trueApi || !connectedAccount?.address || !capturedImage) {
-    //   setIsLoading(false);
-    //   setLoadingMessage("");
-    //   return;
-    // }
-
-    // const upload = await pinata.upload.base64(
-    //   capturedImage.replace(/^data:image\/png;base64,/, "")
-    // );
-
-    // const cid = upload.cid;
+    if (!capturedImage) {
+      setIsLoading(false);
+      setLoadingMessage("");
+      return;
+    }
 
     // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
     //   cid: cid,
@@ -312,9 +313,15 @@ const MemeCreator: React.FC = () => {
     //   poolId: 0,
     // });
 
-    // //Create a marketplace right here
-
-    // // Make attestation of marketplace with zeitguest
+    const cid =capturedImage.split("https://gateway.pinata.cloud/ipfs/")[1];
+    console.log(cid);
+    
+    writeContract({
+      address: DEPLOYED_CONTRACT,
+      abi: CONTRACT_ABI,
+      functionName: 'createMarket',
+      args: [cid],
+    })
 
     // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
     //   cid: cid,
@@ -322,11 +329,19 @@ const MemeCreator: React.FC = () => {
     //   marketId: 1,
     //   poolId: 1,
     // });
-
-    setStage(2);
-    setIsLoading(false);
-    setLoadingMessage("");
   };
+
+  useEffect(() => {
+    if (isConfirmed) {
+      console.log("Worekd");
+      
+      setStage(2);
+      setIsLoading(false);
+      setLoadingMessage("");
+
+    }
+  }, [isConfirmed])
+  
 
   const Stage1 = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -355,10 +370,6 @@ const MemeCreator: React.FC = () => {
             // Set the captured image to the IPFS URL
             setCapturedImage(`https://gateway.pinata.cloud/ipfs/${upload.cid}`);
 
-            // const contract = new Contract(DEPLOYED_CONTRACT, CONTRACT_ABI, signer as any);
-
-            // console.log(await contract.voteCost());
-            
             // Create market logic would go here
             // if (trueApi && connectedAccount?.address) {
             //   await MemeTemplateSchema.attest(trueApi, connectedAccount.address, {
@@ -407,12 +418,6 @@ const MemeCreator: React.FC = () => {
                 className="hidden"
               />
 
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium">
-                  Upload Photo
-                </div>
-              </div>
             </motion.div>
 
             {/* Existing Templates */}
@@ -450,7 +455,7 @@ const MemeCreator: React.FC = () => {
                 <img
                   src={capturedImage}
                   alt="Selected Template"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
 
