@@ -1,19 +1,14 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Camera,
-  RefreshCcw,
-  Plus,
-  Trash2,
-  Loader,
-  Minus,
-} from "lucide-react";
+import { Camera, RefreshCcw, Plus, Trash2, Loader, Minus } from "lucide-react";
 import { pinata } from "@/lib/utils";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
 import { templates } from "@/lib/memes";
-import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { getTrueNetworkInstance } from "@/true-network/true.config";
+import { TrueApi } from "@truenetworkio/sdk";
 
 interface Position {
   x: number;
@@ -233,15 +228,9 @@ const MemeCreator: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [finalMeme, setFinalMeme] = useState<string | null>(null);
-//   const [trueApi, setTrueApi] = useState<TrueApi>();
+  const [trueApi, setTrueApi] = useState<TrueApi>();
   const imageContainerRef = useRef<HTMLDivElement>(null);
-  const { data: hash, writeContract, error } = useWriteContract();
-  const { isLoading: isConfirmingMarket, isSuccess: isConfirmed } =
-  useWaitForTransactionReceipt({
-    hash,
-  })
 
-  
   const addTextBox = () => {
     const newBox: TextBox = {
       id: `text-${Date.now()}`,
@@ -270,11 +259,11 @@ const MemeCreator: React.FC = () => {
         height
       );
 
-    //   if (!trueApi || !connectedAccount?.address || !capturedImage) {
-    //     setIsLoading(false);
-    //     setLoadingMessage("");
-    //     return;
-    //   }
+      if (!trueApi || !capturedImage) {
+        setIsLoading(false);
+        setLoadingMessage("");
+        return;
+      }
 
       // const upload = await pinata.upload.base64(memeDataUrl);
 
@@ -296,55 +285,61 @@ const MemeCreator: React.FC = () => {
     }
   };
 
-  const generateTemplate = async () => {
-    setIsLoading(true);
-    setLoadingMessage("Selecting your meme...");
-
-    if (!capturedImage) {
-      setIsLoading(false);
-      setLoadingMessage("");
-      return;
-    }
-
-    // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
-    //   cid: cid,
-    //   isTemplate: false,
-    //   marketId: 0,
-    //   poolId: 0,
-    // });
-
-    const cid =capturedImage.split("https://gateway.pinata.cloud/ipfs/")[1];
-    console.log(cid);
-    
-    writeContract({
-      address: DEPLOYED_CONTRACT,
-      abi: CONTRACT_ABI,
-      functionName: 'createMarket',
-      args: [cid],
-    })
-
-    // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
-    //   cid: cid,
-    //   isTemplate: false,
-    //   marketId: 1,
-    //   poolId: 1,
-    // });
-  };
-
-  useEffect(() => {
-    if (isConfirmed) {
-      console.log("Worekd");
-      
-      setStage(2);
-      setIsLoading(false);
-      setLoadingMessage("");
-
-    }
-  }, [isConfirmed])
-  
+ 
 
   const Stage1 = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const { data: hash, writeContract, error } = useWriteContract();
+    const {
+      isLoading: isConfirmingMarket,
+      isSuccess: isConfirmed,
+      status: MarketCreationStatus,
+    } = useWaitForTransactionReceipt({
+      hash,
+    });
+
+    useEffect(() => {
+      if (isConfirmed) {
+        console.log("Worked");
+
+        setStage(2);
+        setIsLoading(false);
+        setLoadingMessage("");
+      }
+    }, [isConfirmed]);
+
+    useEffect(() => {
+      console.log(MarketCreationStatus);
+    }, [MarketCreationStatus]);
+
+    const generateTemplate = async () => {
+      setIsLoading(true);
+      setLoadingMessage("Selecting your meme...");
+  
+      if (!capturedImage) {
+        setIsLoading(false);
+        setLoadingMessage("");
+        return;
+      }
+  
+      const cid = capturedImage.split("https://ipfs.io/ipfs/")[1];
+      console.log(cid);
+  
+      writeContract({
+        address: DEPLOYED_CONTRACT,
+        abi: CONTRACT_ABI,
+        functionName: "createMarket",
+        args: [cid],
+      });
+  
+      // await MemeTemplateSchema.attest(trueApi, connectedAccount?.address, {
+      //   cid: cid,
+      //   isTemplate: false,
+      //   marketId: 1,
+      //   poolId: 1,
+      // });
+    };
 
     const handleFileUpload = async (
       event: React.ChangeEvent<HTMLInputElement>
@@ -368,7 +363,7 @@ const MemeCreator: React.FC = () => {
             );
 
             // Set the captured image to the IPFS URL
-            setCapturedImage(`https://gateway.pinata.cloud/ipfs/${upload.cid}`);
+            setCapturedImage(`https://ipfs.io/ipfs/${upload.cid}`);
 
             // Create market logic would go here
             // if (trueApi && connectedAccount?.address) {
@@ -417,7 +412,6 @@ const MemeCreator: React.FC = () => {
                 onChange={handleFileUpload}
                 className="hidden"
               />
-
             </motion.div>
 
             {/* Existing Templates */}
@@ -640,45 +634,31 @@ const MemeCreator: React.FC = () => {
     </div>
   );
 
-//   useEffect(() => {
-//     const setupapi = async () => {
-//       const api = await getTrueNetworkInstance();
+  useEffect(() => {
+    const setupapi = async () => {
+      const api = await getTrueNetworkInstance();
 
-//       setTrueApi(api);
+      setTrueApi(api);
+    };
 
-//       const sdk: Sdk<RpcContext> = await create({
-//         provider: "wss://bsr.zeitgeist.pm",
-//         storage: createStorage(
-//           IPFS.storage({
-//             node: { url: "http://localhost:5001" },
-//           })
-//         ),
-//       });
-
-//       // const market = (await sdk.model.markets.get(818)).unwrap();
-//       // console.log(market);
-
-//       setZeitGuestSdk(sdk);
-//     };
-
-//     setupapi();
-//   }, []);
+    setupapi();
+  }, []);
 
   return (
-      <div className="min-h-screen bg-gray-900 text-white p-4">
-        <AnimatePresence>{isLoading && <LoadingOverlay />}</AnimatePresence>
+    <div className="min-h-screen bg-gray-900 text-white p-4">
+      <AnimatePresence>{isLoading && <LoadingOverlay />}</AnimatePresence>
 
-        <div className="w-full max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full"
-          >
-            {stage === 1 ? <Stage1 /> : stage === 2 ? <Stage2 /> : <Stage3 />}
-          </motion.div>
-        </div>
+      <div className="w-full max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full"
+        >
+          {stage === 1 ? <Stage1 /> : stage === 2 ? <Stage2 /> : <Stage3 />}
+        </motion.div>
       </div>
+    </div>
   );
 };
 
