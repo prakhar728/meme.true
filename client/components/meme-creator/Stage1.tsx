@@ -5,6 +5,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useReadContract,
+  useAccount,
 } from "wagmi";
 import { Template } from "./types";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
@@ -44,6 +45,17 @@ const Stage1: React.FC<Stage1Props> = ({
       hash,
     });
 
+  const { chain } = useAccount();
+
+  useEffect(() => {
+    if (chain) {
+      console.log("Connected to network:", chain.name);
+      console.log("Network chain ID:", chain.id);
+    } else {
+      console.log("No network connected.");
+    }
+  }, [chain]);
+
   const {
     data: marketData,
     error: marketError,
@@ -53,18 +65,20 @@ const Stage1: React.FC<Stage1Props> = ({
   } = useReadContract({
     address: DEPLOYED_CONTRACT,
     abi: CONTRACT_ABI,
-    functionName: "getMarketCount",
+    functionName: "marketCount",
     args: [],
   });
 
-  // Debug logs
-  useEffect(() => {
-    console.log("Contract Status:", status);
-    console.log("Is Loading:", isLoading);
-    console.log("Is Error:", isError);
-    console.log("Error:", marketError);
-    console.log("Raw Data:", marketData);
-  }, [status, isLoading, isError, marketError, marketData]);
+  // useEffect(() => {
+  //   console.log("Contract Status:", status);
+  //   console.log("Is Loading:", isLoading);
+  //   console.log("Is Error:", isError);
+  //   console.log("Error:", marketError);
+  //   console.log("Raw Data:", marketData);
+  //   if (marketData) {
+  //     console.log("Formatted Market Count:", marketData.toString());
+  //   }
+  // }, [status, isLoading, isError, marketError, marketData]);
 
   // Monitor transaction hash
   useEffect(() => {
@@ -155,10 +169,12 @@ const Stage1: React.FC<Stage1Props> = ({
         setIsUploadingToIpfs(true);
 
         try {
-          const res = await uploadImage(base64String.replace(/^data:image\/\w+;base64,/, ""));
-          
+          const res = await uploadImage(
+            base64String.replace(/^data:image\/\w+;base64,/, "")
+          );
+
           console.log(res);
-          
+
           // Store the CID
           setIpfsCid(res);
           setIsUploadingToIpfs(false);

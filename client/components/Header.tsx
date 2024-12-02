@@ -2,16 +2,9 @@
 
 import React, { useState } from "react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
 import { LogOut, X, Menu } from "lucide-react";
 import Link from "next/link";
 import { MetaMaskButton } from "@metamask/sdk-react-ui";
-import { useRouter } from "next/router";
-
-// Chain configuration
-const SUPPORTED_CHAINS = [mainnet, sepolia];
-
-// WalletModal component
 
 // MobileNav component remains largely the same
 const MobileNav: React.FC<{
@@ -52,7 +45,7 @@ const Header: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { chain } = useAccount();
-  const { chains, switchChain, pendingChainId } = useSwitchChain();
+  const { chains, switchChain } = useSwitchChain();
 
   const [showChains, setShowChains] = useState<boolean>(false);
 

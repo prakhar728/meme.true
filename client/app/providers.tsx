@@ -16,8 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             dappMetadata: {
               name: "Example React UI Dapp",
             },
-            infuraAPIKey: process.env.INFURA_API_KEY,
-            // Other options.
+            infuraAPIKey: "https://moonbase-alpha.public.blastapi.io",
           }}
         >
           {children}
