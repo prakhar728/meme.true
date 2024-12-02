@@ -10,15 +10,11 @@ interface Content {
   image?: string; // Optional image URL
 }
 
-export const StickyScroll = ({
-  content,
-}: {
-  content: Content[];
-}) => {
+export const StickyScroll = ({ content }: { content: Content[] }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ["start start", "end end"],
   });
 
   const createScrollTransform = (index: number) => {
@@ -28,8 +24,8 @@ export const StickyScroll = ({
       [
         index / (content.length + 0.5), // Start fade in earlier
         (index + 0.2) / (content.length + 0.5), // Complete fade in
-        ((index + 0.8)) / (content.length + 0.5), // Start fade out
-        ((index + 1)) / (content.length + 0.5) // Complete fade out
+        (index + 0.8) / (content.length + 0.5), // Start fade out
+        (index + 1) / (content.length + 0.5), // Complete fade out
       ],
       [0, 1, 1, 0]
     );
@@ -43,20 +39,20 @@ export const StickyScroll = ({
       <div className="sticky top-0 h-screen flex items-center overflow-hidden">
         <div className="absolute w-full">
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-center">
               {/* Left side content */}
-              <div className="relative h-[50vh] md:h-[60vh]">
+              <div className="relative h-[40vh] md:h-[50vh] flex items-center justify-center">
                 {content.map((item, index) => {
                   const opacity = createScrollTransform(index);
-                  
+
                   return (
                     <motion.div
                       key={item.title}
                       initial={{ opacity: 0 }}
                       style={{ opacity: opacity as MotionValue<number> }}
-                      className="absolute top-0 left-0 w-full"
+                      className="absolute top-0 left-0 w-full flex justify-center"
                     >
-                      <div className="bg-card/40 backdrop-blur-sm p-8 rounded-xl border border-border">
+                      <div className="bg-card/40 backdrop-blur-sm p-8 rounded-xl border border-border max-w-lg">
                         <h3 className="text-2xl font-bold text-card-foreground mb-4">
                           {item.title}
                         </h3>
@@ -70,14 +66,14 @@ export const StickyScroll = ({
               </div>
 
               {/* Right side images */}
-              <div className="relative h-[50vh] md:h-[60vh]">
+              <div className="relative h-[40vh] md:h-[50vh]">
                 {content.map((item, index) => {
                   const opacity = createScrollTransform(index);
                   const translateY = useTransform(
                     scrollYProgress,
                     [
                       index / (content.length + 0.5),
-                      (index + 1) / (content.length + 0.5)
+                      (index + 1) / (content.length + 0.5),
                     ],
                     [50, -50]
                   );
@@ -86,9 +82,9 @@ export const StickyScroll = ({
                     <motion.div
                       key={index}
                       initial={{ opacity: 0 }}
-                      style={{ 
+                      style={{
                         opacity: opacity as MotionValue<number>,
-                        y: translateY
+                        y: translateY,
                       }}
                       className="absolute top-0 left-0 w-full h-full"
                     >
@@ -99,14 +95,14 @@ export const StickyScroll = ({
                               src={item.image}
                               alt={item.title}
                               fill
-                              className="object-cover"
+                              className="object-contain"
                               sizes="(max-width: 768px) 100vw, 50vw"
                             />
                           </div>
                         ) : (
                           // Fallback if no image is provided
                           <div className="w-full h-full flex items-center justify-center bg-accent/10">
-                            <motion.div 
+                            <motion.div
                               className="w-20 h-20 bg-accent/20 rounded-full"
                               animate={{
                                 scale: [1, 1.2, 1],
@@ -115,7 +111,7 @@ export const StickyScroll = ({
                               transition={{
                                 duration: 4,
                                 repeat: Infinity,
-                                ease: "linear"
+                                ease: "linear",
                               }}
                             />
                           </div>
