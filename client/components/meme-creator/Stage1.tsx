@@ -5,7 +5,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useReadContract,
-  useAccount,
+  useReadContracts,
 } from "wagmi";
 import { Template } from "./types";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
@@ -45,40 +45,28 @@ const Stage1: React.FC<Stage1Props> = ({
       hash,
     });
 
-  const { chain } = useAccount();
-
-  useEffect(() => {
-    if (chain) {
-      console.log("Connected to network:", chain.name);
-      console.log("Network chain ID:", chain.id);
-    } else {
-      console.log("No network connected.");
-    }
-  }, [chain]);
-
-  const {
-    data: marketData,
-    error: marketError,
-    isError,
-    isLoading,
-    status,
-  } = useReadContract({
+  const { data: marketCount } = useReadContract({
     address: DEPLOYED_CONTRACT,
     abi: CONTRACT_ABI,
     functionName: "marketCount",
     args: [],
   });
 
-  // useEffect(() => {
-  //   console.log("Contract Status:", status);
-  //   console.log("Is Loading:", isLoading);
-  //   console.log("Is Error:", isError);
-  //   console.log("Error:", marketError);
-  //   console.log("Raw Data:", marketData);
-  //   if (marketData) {
-  //     console.log("Formatted Market Count:", marketData.toString());
-  //   }
-  // }, [status, isLoading, isError, marketError, marketData]);
+  const contracts = new Array(Number(marketCount)).fill(0).map(
+    (_, index) =>
+      ({
+        address: DEPLOYED_CONTRACT as `0x${string}`, // Cast to Address type
+        abi: CONTRACT_ABI,
+        functionName: "getMarket",
+        args: [BigInt(index)], // Start from 1 since market IDs typically start at 1
+      } as const)
+  ); // Add const assertion
+
+  const { data } = useReadContracts({
+    contracts,
+  });
+
+  console.log(data);
 
   // Monitor transaction hash
   useEffect(() => {
