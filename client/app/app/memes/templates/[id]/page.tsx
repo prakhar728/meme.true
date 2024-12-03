@@ -216,7 +216,7 @@ const MemeView = () => {
   }
 
   return (
-    <div className="bg-[hsl(220,10%,8%)] max-w-full min-h-screen flex items-center justify-center p-4">
+    <div className="bg-[hsl(220,10%,8%)] max-w-full h-[93vh] flex items-center justify-center p-4">
       <div className="relative w-[400px] h-[60vh] overflow-hidden">
         {/* Loading State */}
         {isLoading && (
