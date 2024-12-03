@@ -69,7 +69,6 @@ app.post("/api/relay", async (req, res) => {
 
     res.json({
       message: "Vote relayed successfully",
-      txHash: receipt.transactionHash
     });
   } catch (error) {
     console.error("Error relaying vote:", error);
