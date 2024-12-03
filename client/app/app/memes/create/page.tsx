@@ -40,7 +40,6 @@ const MemeCreator: React.FC = () => {
             setStage={setStage}
             setIsLoading={setIsLoading}
             setLoadingMessage={setLoadingMessage}
-            templates={templates}
             trueApi={trueApi}
             setmemeTemplate={setmemeTemplate}
           />

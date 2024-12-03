@@ -67,11 +67,9 @@ const Stage2: React.FC<Stage2Props> = ({
       try {
         const res = await uploadImage(memeDataUrl.split(",")[1]);
 
-        console.log(res);
-
         if (!trueApi) {
           return;
-        }
+        } 
 
         await createMeme({
           cid: res,

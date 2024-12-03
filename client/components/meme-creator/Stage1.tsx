@@ -18,7 +18,6 @@ interface Stage1Props {
   setStage: (stage: number) => void;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
-  templates: Template[];
   trueApi?: TrueApi;
   setmemeTemplate: (state: number) => void;
 }
@@ -29,7 +28,6 @@ const Stage1: React.FC<Stage1Props> = ({
   setStage,
   setIsLoading,
   setLoadingMessage,
-  templates,
   trueApi,
   setmemeTemplate,
 }) => {
@@ -38,6 +36,7 @@ const Stage1: React.FC<Stage1Props> = ({
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [ipfsCid, setIpfsCid] = useState<string | null>(null);
   const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false);
+  const [templates, setTemplates] = useState([]);
 
   const { data: hash, writeContract, error } = useWriteContract();
   const { isLoading: isConfirmingMarket, status: MarketCreationStatus } =
@@ -52,7 +51,7 @@ const Stage1: React.FC<Stage1Props> = ({
     args: [],
   });
 
-  const contracts = new Array(Number(marketCount)).fill(0).map(
+  const contracts = new Array(Number(marketCount) || 0).fill(0).map(
     (_, index) =>
       ({
         address: DEPLOYED_CONTRACT as `0x${string}`, // Cast to Address type
@@ -62,11 +61,31 @@ const Stage1: React.FC<Stage1Props> = ({
       } as const)
   ); // Add const assertion
 
-  const { data } = useReadContracts({
+  const { data: MemeTemplates } = useReadContracts({
     contracts,
   });
 
-  console.log(data);
+  useEffect(() => {
+    const populateTemplates = async () => {
+      let temps = [];
+      if (!MemeTemplates) return;
+
+      for (let temp of MemeTemplates) {
+        const data = await fetch(
+          `https://gateway.lighthouse.storage/ipfs/${temp.result[6]}`
+        );
+        const img = await data.text();
+
+        temp.result[7] = `data:image/png;base64,${img}`;
+
+        temps.push(temp.result);
+      }
+
+      setTemplates(temps);
+    };
+
+    populateTemplates();
+  }, [MemeTemplates]);
 
   // Monitor transaction hash
   useEffect(() => {
@@ -78,9 +97,6 @@ const Stage1: React.FC<Stage1Props> = ({
 
   // Monitor confirmation status
   useEffect(() => {
-    console.log("Market Creation Status:", MarketCreationStatus);
-    console.log("Is Confirming:", isConfirmingMarket);
-
     if (isConfirmingMarket) {
       setStage(2);
       setIsLoading(false);
@@ -91,6 +107,8 @@ const Stage1: React.FC<Stage1Props> = ({
         base64Image || (ipfsCid ? `https://ipfs.io/ipfs/${ipfsCid}` : null)
       );
       setLoadingMessage("Transaction is being confirmed...");
+
+      setmemeTemplate(Number(marketCount) + 1);
     }
   }, [
     isConfirmingMarket,
@@ -181,17 +199,25 @@ const Stage1: React.FC<Stage1Props> = ({
     }
   };
 
-  const handleTemplateSelection = (template: Template) => {
+  const handleTemplateSelection = (template: Template, index: number) => {
     // For templates, we'll use the template URL directly
     setSelectedImage(template.src);
     setBase64Image(null);
 
-    // Extract CID from template URL if it's an IPFS URL
-    const cid = template.src.includes("ipfs.io/ipfs/")
-      ? template.src.split("ipfs.io/ipfs/")[1]
-      : null;
+    setIpfsCid(template[6]);
 
-    setIpfsCid(cid);
+    setStage(2);
+    setIsLoading(false);
+    setLoadingMessage("");
+    setSelectedImage(null);
+    // Pass both base64 and IPFS URL to the next stage
+    setCapturedImage(
+      template[7]
+    );
+
+    setLoadingMessage("Template is being selected...");
+
+    setmemeTemplate(index);
   };
 
   // Monitor contract errors
@@ -235,28 +261,31 @@ const Stage1: React.FC<Stage1Props> = ({
           </motion.div>
 
           {/* Existing Templates */}
-          {templates.map((template) => (
-            <motion.div
-              key={template.id}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden cursor-pointer group"
-              onClick={() => !isDisabled && handleTemplateSelection(template)}
-            >
-              <img
-                src={template.src}
-                alt={template.alt}
-                className="w-full h-full object-cover"
-              />
+          {templates &&
+            templates.map((template, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden cursor-pointer group"
+                onClick={() =>
+                  !isDisabled && handleTemplateSelection(template, index)
+                }
+              >
+                <img
+                  src={template[7]}
+                  alt={"Meme template"}
+                  className="w-full h-full object-cover"
+                />
 
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium text-black">
-                  Use Template
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="bg-primary/90 px-4 py-2 rounded-full text-sm font-medium text-black">
+                    Use Template
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
         </div>
       </div>
 
