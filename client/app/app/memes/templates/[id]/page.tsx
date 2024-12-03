@@ -73,10 +73,10 @@ const MemeView = () => {
                 image: `data:image/png;base64,${imageData}`,
               };
             } catch (error) {
-              if (error.name === "AbortError") {
-                throw error;
+              if (error instanceof Error && error.name === "AbortError") {
+                throw error; // Rethrow if it's an AbortError
               }
-              // Return meme without image if loading fails
+              // Handle other errors and return the meme without the image
               return {
                 ...meme,
                 image: null,
@@ -98,9 +98,11 @@ const MemeView = () => {
       } catch (error) {
         if (!isMounted) return;
 
-        if (error.name === "AbortError") return;
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
 
-        setError(error.message || "Failed to load memes");
+        setError( "Failed to load memes");
         console.error("Error loading memes:", error);
       } finally {
         if (isMounted) {
@@ -144,7 +146,6 @@ const MemeView = () => {
     setTimeout(() => setShowReaction(null), 1000);
 
     const mm = memes[currentIndex];
-    console.log(mm.memeTemplate);
     
     await investInTemplate(address as string, parseInt(mm.memeTemplate), true);
 
