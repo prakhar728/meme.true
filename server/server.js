@@ -63,9 +63,9 @@ app.post("/api/relay", async (req, res) => {
 
     console.log("Transaction sent:", txResponse.hash);
 
-    // Wait for the transaction to be mined
-    const receipt = await txResponse.wait();
-    console.log("Transaction mined:", receipt.transactionHash);
+    // // Wait for the transaction to be mined
+    // const receipt = await txResponse.wait();
+    // console.log("Transaction mined:", receipt.transactionHash);
 
     res.json({
       message: "Vote relayed successfully",
