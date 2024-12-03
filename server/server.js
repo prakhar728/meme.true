@@ -23,7 +23,7 @@ mongoose
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL); // Add your RPC URL to .env
 const relayerWallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider); // Add your private key to .env
 
-const contractAddress = "Y0xf197A93dFf8a9d1b6275C28F83De9EC86322ac87";
+const contractAddress = "0xf197A93dFf8a9d1b6275C28F83De9EC86322ac87";
 const contractABI = CONTRACT.abi;
 
 // Create - GET Health Check
@@ -46,15 +46,15 @@ app.post("/api/relay", async (req, res) => {
   try {
     // Initialize the contract instance
     const contract = new Contract(contractAddress, contractABI, relayerWallet);
-    console.log(contract.interface);
-    
 
     // Estimate the gas required for the transaction
-    const voteCost = parseEther("0.01"); // Replace with actual voteCost from your contract
+    const voteCost = parseEther("0.001"); // Replace with actual voteCost from your contract
+    
     const gasLimit = await contract.vote.estimateGas(userAddress, marketId, voteYes, {
       value: voteCost
     });
 
+    
     // Send the transaction
     const txResponse = await contract.vote(userAddress, marketId, voteYes, {
       value: voteCost,

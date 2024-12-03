@@ -144,6 +144,8 @@ const MemeView = () => {
     setTimeout(() => setShowReaction(null), 1000);
 
     const mm = memes[currentIndex];
+    console.log(mm.memeTemplate);
+    
     await investInTemplate(address as string, parseInt(mm.memeTemplate), true);
 
     nextMeme();

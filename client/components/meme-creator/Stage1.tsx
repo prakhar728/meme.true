@@ -113,7 +113,7 @@ const Stage1: React.FC<Stage1Props> = ({
       );
       setLoadingMessage("Transaction is being confirmed...");
 
-      setmemeTemplate(Number(marketCount) + 1);
+      setmemeTemplate(Number(marketCount));
     }
   }, [
     isConfirmingMarket,
