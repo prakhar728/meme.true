@@ -310,7 +310,7 @@ export default function Home() {
                   The future of meme creation and prediction markets.
                 </p>
               </div>
-              <div>
+              {/* <div>
                 <h4 className="text-base sm:text-lg font-semibold text-white mb-4">
                   Platform
                 </h4>
@@ -339,7 +339,7 @@ export default function Home() {
                   <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300 hover:text-white cursor-pointer" />
                   <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-300 hover:text-white cursor-pointer" />
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className="mt-8 pt-8 border-t border-gray-700 text-center text-xs sm:text-sm text-gray-400">
               <p>&copy; 2024 Meme.True. All rights reserved.</p>

@@ -54,7 +54,6 @@ app.post("/api/relay", async (req, res) => {
       value: voteCost
     });
 
-    
     // Send the transaction
     const txResponse = await contract.vote(userAddress, marketId, voteYes, {
       value: voteCost,
@@ -63,10 +62,7 @@ app.post("/api/relay", async (req, res) => {
 
     console.log("Transaction sent:", txResponse.hash);
 
-    // // Wait for the transaction to be mined
-    // const receipt = await txResponse.wait();
-    // console.log("Transaction mined:", receipt.transactionHash);
-
+    // /
     res.json({
       message: "Vote relayed successfully",
     });
