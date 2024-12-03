@@ -46,7 +46,7 @@ const Header: React.FC = () => {
   const navLinks = [
     { href: "/app/memes", label: "Explore" },
     { href: "/app/memes/create", label: "Create" },
-    { href: "/app/my-memes", label: "My Memes" },
+    { href: "/app/memes/settlements", label: "Settlements" },
   ];
 
   const truncatedAddress = address
