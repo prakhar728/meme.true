@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const API_ROUTE =
-  process.env.NEXT_PUBLIC_PROD == "False" ? "http://localhost:5000" :"PROD";
+  process.env.NEXT_PUBLIC_PROD == "False" ? "http://localhost:5000" :"https://meme-true.onrender.com";
 
 // lib/api.ts
 interface MemeData {
