@@ -12,40 +12,6 @@ interface LayoutProps {
 }
 
 
-const FloatingMemes = () => {
-  return (
-    <div className="fixed inset-0 top-0 overflow-hidden pointer-events-none ">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((i) => (
-        <motion.div
-          key={i}
-          className="absolute"
-          animate={{
-            y: ["0%", "100%"],
-            x: ["0%", i % 2 === 0 ? "100%" : "-100%"],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 20 + i * 2,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            opacity: 0.1,
-          }}
-        >
-          <img
-            src={`/images/meme-${i}.webp`}
-            alt="Floating meme"
-            className="w-40 h-40 object-contain"
-          />
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-
 export default function Layout({ children }: LayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +37,8 @@ export default function Layout({ children }: LayoutProps) {
   if (isLoading) {
     return null;
   }
+  console.log(isMobile);
+  
 
   // if (!isMobile) {
   //   return (

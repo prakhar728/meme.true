@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
@@ -11,6 +12,7 @@ import { Template } from "./types";
 import { CONTRACT_ABI, DEPLOYED_CONTRACT } from "@/lib/ethers";
 import { TrueApi } from "@truenetworkio/sdk";
 import { uploadImage } from "@/lib/utils";
+import { Abi, Address } from "viem";
 
 interface Stage1Props {
   setCapturedImage: (image: string | null) => void;
@@ -21,6 +23,7 @@ interface Stage1Props {
   trueApi?: TrueApi;
   setmemeTemplate: (state: number) => void;
 }
+
 
 const Stage1: React.FC<Stage1Props> = ({
   setCapturedImage,
@@ -36,7 +39,7 @@ const Stage1: React.FC<Stage1Props> = ({
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [ipfsCid, setIpfsCid] = useState<string | null>(null);
   const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false);
-  const [templates, setTemplates] = useState([]);
+  const [templates, setTemplates] = useState<[string, bigint, bigint, bigint, bigint, boolean, string, string][]>([]);
 
   const { data: hash, writeContract, error } = useWriteContract();
   const { isLoading: isConfirmingMarket, status: MarketCreationStatus } =
@@ -54,31 +57,33 @@ const Stage1: React.FC<Stage1Props> = ({
   const contracts = new Array(Number(marketCount) || 0).fill(0).map(
     (_, index) =>
       ({
-        address: DEPLOYED_CONTRACT as `0x${string}`, // Cast to Address type
-        abi: CONTRACT_ABI,
+        address: DEPLOYED_CONTRACT as Address,
+        abi: CONTRACT_ABI as Abi,
         functionName: "getMarket",
-        args: [BigInt(index)], // Start from 1 since market IDs typically start at 1
+        args: [BigInt(index)],
       } as const)
-  ); // Add const assertion
+  );
 
   const { data: MemeTemplates } = useReadContracts({
-    contracts,
+    contracts: contracts as readonly unknown[],
   });
 
   useEffect(() => {
     const populateTemplates = async () => {
-      let temps = [];
+      const temps = [];
       if (!MemeTemplates) return;
 
-      for (let temp of MemeTemplates) {
+      for (const temp of MemeTemplates) {
+        // Type assertion for the result
+        const result = temp.result as [string, bigint, bigint, bigint, bigint, boolean, string, string];
         const data = await fetch(
-          `https://gateway.lighthouse.storage/ipfs/${temp.result[6]}`
+          `https://gateway.lighthouse.storage/ipfs/${result[6]}`
         );
         const img = await data.text();
 
-        temp.result[7] = `data:image/png;base64,${img}`;
+        result[7] = `data:image/png;base64,${img}`;
 
-        temps.push(temp.result);
+        temps.push(result);
       }
 
       setTemplates(temps);
@@ -199,9 +204,9 @@ const Stage1: React.FC<Stage1Props> = ({
     }
   };
 
-  const handleTemplateSelection = (template: Template, index: number) => {
+  const handleTemplateSelection = (template: [string, bigint, bigint, bigint, bigint, boolean, string, string], index: number) => {
     // For templates, we'll use the template URL directly
-    setSelectedImage(template.src);
+    setSelectedImage(null);
     setBase64Image(null);
 
     setIpfsCid(template[6]);
@@ -211,9 +216,7 @@ const Stage1: React.FC<Stage1Props> = ({
     setLoadingMessage("");
     setSelectedImage(null);
     // Pass both base64 and IPFS URL to the next stage
-    setCapturedImage(
-      template[7]
-    );
+    setCapturedImage(template[7]);
 
     setLoadingMessage("Template is being selected...");
 

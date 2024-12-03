@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { LogOut, X, Menu } from "lucide-react";
 import Link from "next/link";
 import { MetaMaskButton } from "@metamask/sdk-react-ui";
@@ -40,14 +40,8 @@ const MobileNav: React.FC<{
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
-
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const { chain } = useAccount();
-  const { chains, switchChain } = useSwitchChain();
-
-  const [showChains, setShowChains] = useState<boolean>(false);
 
   const navLinks = [
     { href: "/app/memes", label: "Explore" },

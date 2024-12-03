@@ -12,9 +12,9 @@ const API_ROUTE =
 
 // lib/api.ts
 interface MemeData {
-  cid: String;
+  cid: string;
   isTemplate: Boolean;
-  memeTemplate: String;
+  memeTemplate: string;
   // Add any other fields your Meme model requires
 }
 

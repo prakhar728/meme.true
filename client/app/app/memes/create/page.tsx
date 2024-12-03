@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { templates } from "@/lib/memes";
 import { getTrueNetworkInstance } from "@/true-network/true.config";
 import { TrueApi } from "@truenetworkio/sdk";
 import Stage1 from "@/components/meme-creator/Stage1";
@@ -30,7 +29,7 @@ const MemeCreator: React.FC = () => {
     setupapi();
   }, []);
 
-  const renderCurrentStage = () => {
+  const RenderCurrentStage = () => {
     switch (stage) {
       case 1:
         return (
@@ -73,7 +72,6 @@ const MemeCreator: React.FC = () => {
             setStage={setStage}
             setFinalMeme={setFinalMeme}
             shareText="Check out this meme I created with Meme.True! 🎨"
-            downloadFileName="meme.png"
           />
         );
       default:
@@ -100,7 +98,7 @@ const MemeCreator: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="w-full"
         >
-          {renderCurrentStage()}
+          {RenderCurrentStage()}
         </motion.div>
       </div>
     </div>

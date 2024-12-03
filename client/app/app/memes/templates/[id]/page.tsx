@@ -26,7 +26,7 @@ const MemeView = () => {
 
   const handleDragEnd = (event: any, info: PanInfo) => {
     const swipeThreshold = 50;
-    const { offset, velocity } = info;
+    const { offset } = info;
 
     // Horizontal swipe
     if (Math.abs(offset.x) > Math.abs(offset.y)) {

@@ -21,7 +21,7 @@ const MemeGallery = () => {
       const memes = await getAllMemes();
 
       if (memes.data)
-        for (let m of memes.data) {
+        for (const m of memes.data) {
           const data = await fetch(
             `https://gateway.lighthouse.storage/ipfs/${m.cid}`
           );

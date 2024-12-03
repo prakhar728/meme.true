@@ -1,5 +1,3 @@
-// components/meme-creator/Stage3.tsx
-import { Copy, RefreshCcw } from "lucide-react";
 import ShareButtons from "./ShareButtons";
 
 interface Stage3Props {
@@ -7,7 +5,6 @@ interface Stage3Props {
   setStage: (stage: number) => void;
   setFinalMeme: (meme: string | null) => void;
   shareText?: string;
-  downloadFileName?: string;
 }
 
 const Stage3: React.FC<Stage3Props> = ({
@@ -15,7 +12,6 @@ const Stage3: React.FC<Stage3Props> = ({
   setStage,
   setFinalMeme,
   shareText = "Check out this meme I created!",
-  downloadFileName = "meme.png",
 }) => {
   const handleShare = () => {
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(

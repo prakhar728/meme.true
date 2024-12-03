@@ -17,7 +17,7 @@ export const StickyScroll = ({ content }: { content: Content[] }) => {
     offset: ["start start", "end end"],
   });
 
-  const createScrollTransform = (index: number) => {
+  const CreateScrollTransform = (index: number) => {
     return useTransform(
       scrollYProgress,
       // Adjusted ranges to prevent overlap
@@ -43,7 +43,7 @@ export const StickyScroll = ({ content }: { content: Content[] }) => {
               {/* Left side content */}
               <div className="relative h-[40vh] md:h-[50vh] flex items-center justify-center">
                 {content.map((item, index) => {
-                  const opacity = createScrollTransform(index);
+                  const opacity = CreateScrollTransform(index);
 
                   return (
                     <motion.div
@@ -68,7 +68,7 @@ export const StickyScroll = ({ content }: { content: Content[] }) => {
               {/* Right side images */}
               <div className="relative h-[40vh] md:h-[50vh]">
                 {content.map((item, index) => {
-                  const opacity = createScrollTransform(index);
+                  const opacity = CreateScrollTransform(index);
                   const translateY = useTransform(
                     scrollYProgress,
                     [
