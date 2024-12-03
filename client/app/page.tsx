@@ -226,29 +226,33 @@ export default function Home() {
 
         {/* Roadmap Section */}
         <TracingBeam className="px-4 sm:px-6 lg:px-8">
-          <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl mx-auto antialiased pt-4 relative">
+          <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-3xl mx-auto antialiased pt-4 relative">
             {[
               {
                 date: "Q1 2024",
                 title: "Platform Launch",
                 description:
                   "Initial release with core features and wallet integration",
+                image: "/Roadmap-1.png", // Replace with actual image path
               },
               {
                 date: "Q2 2024",
                 title: "Community Features",
                 description:
                   "Introduction of social features and creator tools",
+                image: "/Roadmap-2.png", // Replace with actual image path
               },
               {
                 date: "Q3 2024",
                 title: "Enhanced Predictions",
                 description: "Advanced prediction markets and analytics",
+                image: "/Roadmap-3.png", // Replace with actual image path
               },
               {
                 date: "Q4 2024",
                 title: "Mobile App",
                 description: "Launch of native mobile applications",
+                image: "/Roadmap-4.png", // Replace with actual image path
               },
             ].map((item, index) => (
               <motion.div
@@ -260,22 +264,34 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
               >
                 <motion.div
-                  className="bg-gray-800/40 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-700/50 hover:bg-gray-800/60 transition-all duration-300"
+                  className="bg-gray-800/40 backdrop-blur-sm rounded-xl border border-gray-700/50 hover:bg-gray-800/60 transition-all duration-300 overflow-hidden flex justify-between"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="flex items-center mb-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 mr-2" />
-                    <h3 className="text-xs sm:text-sm text-purple-400">
-                      {item.date}
-                    </h3>
+                  {/* Content Container */}
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-400 mr-2" />
+                      <h3 className="text-xs sm:text-sm text-purple-400">
+                        {item.date}
+                      </h3>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
+                      {item.title}
+                    </h2>
+                    <p className="text-sm sm:text-base text-gray-300">
+                      {item.description}
+                    </p>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
-                    {item.title}
-                  </h2>
-                  <p className="text-sm sm:text-base text-gray-300">
-                    {item.description}
-                  </p>
+
+                  {/* Image Container */}
+                  <div className="w-3/12 aspect-square relative overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={`${item.title} illustration`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
                 </motion.div>
               </motion.div>
             ))}

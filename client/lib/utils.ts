@@ -60,7 +60,6 @@ export const getAllMemes = async ()  => {
     const response = await fetch(`${API_ROUTE}/api/memes`);
 
     const data: MemeTemplate[] = await response.json();
-    console.log(data);
     
     if (!response.ok) {
       throw new Error("Failed to create meme");
@@ -87,3 +86,45 @@ export const uploadImage = async (base64: string) => {
 
   return response.data.Hash;
 }
+
+
+export const investInTemplate = async (
+    userAddress: string,
+    marketId: number,
+    voteYes: boolean
+  ) => {
+    try {
+      const data = {
+        userAddress,
+        marketId,
+        voteYes,
+      };
+  
+      const response = await fetch(`${API_ROUTE}/api/relay`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const res = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(res.message || "Failed to relay vote");
+      }
+  
+      return {
+        success: true,
+        data: res,
+      };
+    } catch (error) {
+      console.error("Error relaying vote:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      };
+    }
+  };
+  

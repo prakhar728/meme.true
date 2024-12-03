@@ -66,7 +66,7 @@ const MemeGallery = () => {
 
       {/* Floating Create Button for Mobile */}
       <Link
-        href="/app/create"
+        href="/app/memes/create"
         className="fixed bottom-6 right-6 p-4 bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 transition-colors md:hidden"
       >
         <ImagePlus className="w-6 h-6" />

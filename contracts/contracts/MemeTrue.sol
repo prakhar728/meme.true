@@ -88,7 +88,7 @@ contract MemeTrue {
         );
     }
 
-    function vote(uint256 marketId, bool voteYes)
+    function vote(address userAddress, uint256 marketId, bool voteYes)
         external
         payable
         marketExists(marketId)
@@ -97,21 +97,21 @@ contract MemeTrue {
         Market storage market = markets[marketId];
 
         require(msg.value == voteCost, "Incorrect voting fee");
-        require(!market.hasVoted[msg.sender], "You have already voted");
+        require(!market.hasVoted[userAddress], "You have already voted");
         require(block.timestamp <= market.endTime, "Voting period ended");
 
-        market.hasVoted[msg.sender] = true;
+        market.hasVoted[userAddress] = true;
         market.totalStaked += msg.value;
 
         if (voteYes) {
             market.yesVotes++;
-            market.yesVoters.push(msg.sender);
+            market.yesVoters.push(userAddress);
         } else {
             market.noVotes++;
-            market.noVoters.push(msg.sender);
+            market.noVoters.push(userAddress);
         }
 
-        emit VoteCast(marketId, msg.sender, voteYes);
+        emit VoteCast(marketId, userAddress, voteYes);
     }
 
     function releaseRewards(uint256 marketId)
